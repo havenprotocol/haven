@@ -1,0 +1,21 @@
+[Unit]
+Description=Haven Full Node
+After=network.target
+
+[Service]
+User=haven
+Group=haven
+WorkingDirectory=~
+RuntimeDirectory=haven
+
+Type=forking
+PIDFile=/run/haven/havend.pid
+
+ExecStart=/usr/bin/havend --config-file /etc/havend.conf \
+    --detach --pidfile /run/haven/havend.pid
+
+Restart=always
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
