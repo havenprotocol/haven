@@ -1147,10 +1147,10 @@ namespace boost
         {
           x.m_spent_height = 0;
         }
-        // if (ver < 4)
-        // {
-        //   x.m_rct = x.m_tx.vout[x.m_internal_output_index].amount == 0;
-        // }
+        if (ver < 4)
+        {
+          x.m_rct = x.m_tx.vout[x.m_internal_output_index].amount == 0;
+        }
         if (ver < 6)
         {
           x.m_key_image_known = true;
@@ -1215,7 +1215,7 @@ namespace boost
         initialize_transfer_details(a, x, ver);
         return;
       }
-      // a & x.m_rct;
+      a & x.m_rct;
       if (ver < 5)
       {
         initialize_transfer_details(a, x, ver);
