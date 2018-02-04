@@ -266,8 +266,6 @@ namespace cryptonote
       return true;
 
     // from v6, if the peer advertises a top block version, reject if it's not what it should be (will only work if no voting)
-    if (hshd.current_height > 0)
-    {
       const uint8_t version = m_core.get_ideal_hard_fork_version(hshd.current_height - 1);
       if (version != hshd.top_version)
       {
@@ -277,7 +275,6 @@ namespace cryptonote
               ") - we may be forked from the network and a software upgrade may be needed");
         return false;
       }
-    }
 
     context.m_remote_blockchain_height = hshd.current_height;
 

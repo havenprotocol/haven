@@ -2507,7 +2507,7 @@ bool Blockchain::check_tx_inputs(transaction& tx, tx_verification_context &tvc, 
     tvc.m_verifivation_failed = true;
     return false;
   }
-  const size_t min_tx_version = (n_unmixable > 0 ? 1 : 2);
+  const size_t min_tx_version = 2;
   if (tx.version < min_tx_version)
   {
     MERROR_VER("transaction version " << (unsigned)tx.version << " is lower than min accepted version " << min_tx_version);
