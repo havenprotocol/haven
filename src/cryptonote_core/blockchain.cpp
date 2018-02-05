@@ -100,20 +100,8 @@ static const struct {
   time_t time;
 } testnet_hard_forks[] = {
   // version 1 from the start of the blockchain
-  { 1, 1, 0, 1341378000 },
-
-  // version 2 starts from block 624634, which is on or around the 23rd of November, 2015. Fork time finalised on 2015-11-20. No fork voting occurs for the v2 fork.
-  { 2, 624634, 0, 1445355000 },
-
-  // versions 3-5 were passed in rapid succession from September 18th, 2016
-  { 3, 800500, 0, 1472415034 },
-  { 4, 801219, 0, 1472415035 },
-  { 5, 802660, 0, 1472415036 + 86400*180 }, // add 5 months on testnet to shut the update warning up since there's a large gap to v6
-
-  { 6, 971400, 0, 1501709789 },
-  { 7, 1057028, 0, 1512211236 },
+  { 1, 1, 0, 1517398420 },
 };
-static const uint64_t testnet_hard_fork_version_1_till = 624633;
 
 //------------------------------------------------------------------
 Blockchain::Blockchain(tx_memory_pool& tx_pool) :
@@ -318,7 +306,7 @@ bool Blockchain::init(BlockchainDB* db, const bool testnet, bool offline, const 
     if (fakechain)
       m_hardfork = new HardFork(*db, 1, 0);
     else if (m_testnet)
-      m_hardfork = new HardFork(*db, 1, testnet_hard_fork_version_1_till);
+      m_hardfork = new HardFork(*db, 1, 0);
     else
       m_hardfork = new HardFork(*db, 1, 0);
   }
