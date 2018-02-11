@@ -62,7 +62,7 @@ public:
     bool recover(const std::string &path, const std::string &seed);
     bool recoverFromKeys(const std::string &path,
                             const std::string &language,
-                            const std::string &address_string, 
+                            const std::string &address_string,
                             const std::string &viewkey_string,
                             const std::string &spendkey_string = "");
     bool close(bool store = true);
@@ -120,7 +120,6 @@ public:
                                         PendingTransaction::Priority priority = PendingTransaction::Priority_Low,
                                         uint32_t subaddr_account = 0,
                                         std::set<uint32_t> subaddr_indices = {});
-    virtual PendingTransaction * createSweepUnmixableTransaction();
     bool submitTransaction(const std::string &fileName);
     virtual UnsignedTransaction * loadUnsignedTx(const std::string &unsigned_filename);
     bool exportKeyImages(const std::string &filename);
@@ -162,7 +161,7 @@ private:
 
 private:
     friend class PendingTransactionImpl;
-    friend class UnsignedTransactionImpl;    
+    friend class UnsignedTransactionImpl;
     friend class TransactionHistoryImpl;
     friend struct Wallet2CallbackImpl;
     friend class AddressBookImpl;
