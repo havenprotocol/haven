@@ -5012,25 +5012,14 @@ uint64_t wallet2::get_per_kb_fee()
 //----------------------------------------------------------------------------------------------------
 int wallet2::get_fee_algorithm()
 {
-  // changes at v3 and v5
-  if (use_fork_rules(5, 0))
-    return 2;
-  if (use_fork_rules(3, -720 * 14))
-   return 1;
-  return 0;
+  // TODO: remove this function
+  return 2;
 }
 //------------------------------------------------------------------------------------------------------------------------------
 uint64_t wallet2::adjust_mixin(uint64_t mixin)
 {
-  if (mixin < 4 && use_fork_rules(6, 10)) {
-    MWARNING("Requested ring size " << (mixin + 1) << " too low for hard fork 6, using 5");
-    mixin = 4;
-  }
-  else if (mixin < 2 && use_fork_rules(2, 10)) {
-    MWARNING("Requested ring size " << (mixin + 1) << " too low for hard fork 2, using 3");
-    mixin = 2;
-  }
-  return mixin;
+  // TODO: remove this function and replace with config variable
+  return 4;
 }
 //----------------------------------------------------------------------------------------------------
 // separated the call(s) to wallet2::transfer into their own function
@@ -6971,7 +6960,7 @@ std::vector<wallet2::pending_tx> wallet2::create_transactions_all(uint64_t below
 {
   std::vector<size_t> unused_transfers_indices;
   std::vector<size_t> unused_dust_indices;
-  const bool use_rct = use_fork_rules(4, 0);
+  const bool use_rct = true;
 
   THROW_WALLET_EXCEPTION_IF(unlocked_balance(subaddr_account) == 0, error::wallet_internal_error, "No unlocked balance in the entire wallet");
 
@@ -7025,7 +7014,7 @@ std::vector<wallet2::pending_tx> wallet2::create_transactions_single(const crypt
 {
   std::vector<size_t> unused_transfers_indices;
   std::vector<size_t> unused_dust_indices;
-  const bool use_rct = use_fork_rules(4, 0);
+  const bool use_rct = true;
   // find output with the given key image
   for (size_t i = 0; i < m_transfers.size(); ++i)
   {
@@ -7057,7 +7046,7 @@ std::vector<wallet2::pending_tx> wallet2::create_transactions_from(const crypton
   uint64_t upper_transaction_size_limit = get_upper_transaction_size_limit();
   std::vector<std::vector<get_outs_entry>> outs;
 
-  const bool use_rct = fake_outs_count > 0 && use_fork_rules(4, 0);
+  const bool use_rct = true;
   const bool bulletproof = use_fork_rules(get_bulletproof_fork(m_testnet), 0);
   const uint64_t fee_per_kb  = get_per_kb_fee();
   const uint64_t fee_multiplier = get_fee_multiplier(priority, get_fee_algorithm());
@@ -7328,35 +7317,6 @@ std::vector<size_t> wallet2::select_available_mixable_outputs(bool trusted_daemo
   return select_available_outputs_from_histogram(min_mixin + 1, true, true, true, trusted_daemon);
 }
 //----------------------------------------------------------------------------------------------------
-std::vector<wallet2::pending_tx> wallet2::create_unmixable_sweep_transactions(bool trusted_daemon)
-{
-  // From hard fork 1, we don't consider small amounts to be dust anymore
-  const bool hf1_rules = use_fork_rules(2, 10); // first hard fork has version 2
-  tx_dust_policy dust_policy(hf1_rules ? 0 : ::config::DEFAULT_DUST_THRESHOLD);
-
-  const uint64_t fee_per_kb  = get_per_kb_fee();
-
-  // may throw
-  std::vector<size_t> unmixable_outputs = select_available_unmixable_outputs(trusted_daemon);
-  size_t num_dust_outputs = unmixable_outputs.size();
-
-  if (num_dust_outputs == 0)
-  {
-    return std::vector<wallet2::pending_tx>();
-  }
-
-  // split in "dust" and "non dust" to make it easier to select outputs
-  std::vector<size_t> unmixable_transfer_outputs, unmixable_dust_outputs;
-  for (auto n: unmixable_outputs)
-  {
-    if (m_transfers[n].amount() < fee_per_kb)
-      unmixable_dust_outputs.push_back(n);
-    else
-      unmixable_transfer_outputs.push_back(n);
-  }
-
-  return create_transactions_from(m_account_public_address, false, unmixable_transfer_outputs, unmixable_dust_outputs, 0 /*fake_outs_count */, 0 /* unlock_time */, 1 /*priority */, std::vector<uint8_t>(), trusted_daemon);
-}
 
 bool wallet2::get_tx_key(const crypto::hash &txid, crypto::secret_key &tx_key, std::vector<crypto::secret_key> &additional_tx_keys) const
 {

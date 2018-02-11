@@ -92,7 +92,7 @@ struct Wallet2CallbackImpl : public tools::i_wallet2_callback
     virtual void on_new_block(uint64_t height, const cryptonote::block& block)
     {
         // Don't flood the GUI with signals. On fast refresh - send signal every 1000th block
-        // get_refresh_from_block_height() returns the blockheight from when the wallet was 
+        // get_refresh_from_block_height() returns the blockheight from when the wallet was
         // created or the restore height specified when wallet was recovered
         if(height >= m_wallet->m_wallet->get_refresh_from_block_height() || height % 1000 == 0) {
             // LOG_PRINT_L3(__FUNCTION__ << ": new block. height: " << height);
@@ -246,7 +246,7 @@ bool Wallet::keyValid(const std::string &secret_key_string, const std::string &a
       error = tr("Failed to parse address");
       return false;
   }
-  
+
   cryptonote::blobdata key_data;
   if(!epee::string_tools::parse_hexstr_to_binbuff(secret_key_string, key_data) || key_data.size() != sizeof(crypto::secret_key))
   {
@@ -271,7 +271,7 @@ bool Wallet::keyValid(const std::string &secret_key_string, const std::string &a
       error = tr("key does not match address");
       return false;
   }
-  
+
   return true;
 }
 
@@ -335,7 +335,7 @@ WalletImpl::~WalletImpl()
     LOG_PRINT_L1(__FUNCTION__);
     // Pause refresh thread - prevents refresh from starting again
     pauseRefresh();
-    // Close wallet - stores cache and stops ongoing refresh operation 
+    // Close wallet - stores cache and stops ongoing refresh operation
     close(false); // do not store wallet as part of the closing activities
     // Stop refresh thread
     stopRefresh();
@@ -532,7 +532,7 @@ bool WalletImpl::recoverFromKeys(const std::string &path,
             m_wallet->generate(path, "", info.address, viewkey);
             LOG_PRINT_L1("Generated new view only wallet from keys");
         }
-        
+
     }
     catch (const std::exception& e) {
         m_errorString = string(tr("failed to generate new wallet: ")) + e.what();
@@ -848,14 +848,14 @@ uint64_t WalletImpl::daemonBlockChainTargetHeight() const
         m_status = Status_Ok;
         m_errorString = "";
     }
-    // Target height can be 0 when daemon is synced. Use blockchain height instead. 
+    // Target height can be 0 when daemon is synced. Use blockchain height instead.
     if(result == 0)
         result = daemonBlockChainHeight();
     return result;
 }
 
 bool WalletImpl::daemonSynced() const
-{   
+{
     if(connected() == Wallet::ConnectionStatus_Disconnected)
         return false;
     uint64_t blockChainHeight = daemonBlockChainHeight();
@@ -904,15 +904,15 @@ UnsignedTransaction *WalletImpl::loadUnsignedTx(const std::string &unsigned_file
     m_errorString = tr("Failed to load unsigned transactions");
     m_status = Status_Error;
   }
-  
+
   // Check tx data and construct confirmation message
   std::string extra_message;
   if (!transaction->m_unsigned_tx_set.transfers.empty())
     extra_message = (boost::format("%u outputs to import. ") % (unsigned)transaction->m_unsigned_tx_set.transfers.size()).str();
   transaction->checkLoadedTx([&transaction](){return transaction->m_unsigned_tx_set.txes.size();}, [&transaction](size_t n)->const tools::wallet2::tx_construction_data&{return transaction->m_unsigned_tx_set.txes[n];}, extra_message);
   m_status = transaction->status();
-  m_errorString = transaction->errorString(); 
-    
+  m_errorString = transaction->errorString();
+
   return transaction;
 }
 
@@ -926,7 +926,7 @@ bool WalletImpl::submitTransaction(const string &fileName) {
     m_status = Status_Ok;
     return false;
   }
-  
+
   if(!transaction->commit()) {
     m_errorString = transaction->m_errorString;
     m_status = Status_Error;
@@ -936,7 +936,7 @@ bool WalletImpl::submitTransaction(const string &fileName) {
   return true;
 }
 
-bool WalletImpl::exportKeyImages(const string &filename) 
+bool WalletImpl::exportKeyImages(const string &filename)
 {
   if (m_wallet->watch_only())
   {
@@ -944,7 +944,7 @@ bool WalletImpl::exportKeyImages(const string &filename)
     m_status = Status_Error;
     return false;
   }
-  
+
   try
   {
     if (!m_wallet->export_key_images(filename))
@@ -1050,7 +1050,7 @@ PendingTransaction *WalletImpl::createTransaction(const string &dst_addr, const 
     clearStatus();
     // Pause refresh thread while creating transaction
     pauseRefresh();
-      
+
     cryptonote::address_parse_info info;
 
     // indicates if dst_addr is integrated address (address + payment_id)
@@ -1222,106 +1222,6 @@ PendingTransaction *WalletImpl::createTransaction(const string &dst_addr, const 
     return transaction;
 }
 
-PendingTransaction *WalletImpl::createSweepUnmixableTransaction()
-
-{
-    clearStatus();
-    vector<cryptonote::tx_destination_entry> dsts;
-    cryptonote::tx_destination_entry de;
-
-    PendingTransactionImpl * transaction = new PendingTransactionImpl(*this);
-
-    do {
-        try {
-            transaction->m_pending_tx = m_wallet->create_unmixable_sweep_transactions(m_trustedDaemon);
-
-        } catch (const tools::error::daemon_busy&) {
-            // TODO: make it translatable with "tr"?
-            m_errorString = tr("daemon is busy. Please try again later.");
-            m_status = Status_Error;
-        } catch (const tools::error::no_connection_to_daemon&) {
-            m_errorString = tr("no connection to daemon. Please make sure daemon is running.");
-            m_status = Status_Error;
-        } catch (const tools::error::wallet_rpc_error& e) {
-            m_errorString = tr("RPC error: ") +  e.to_string();
-            m_status = Status_Error;
-        } catch (const tools::error::get_random_outs_error&) {
-            m_errorString = tr("failed to get random outputs to mix");
-            m_status = Status_Error;
-
-        } catch (const tools::error::not_enough_unlocked_money& e) {
-            m_status = Status_Error;
-            std::ostringstream writer;
-
-            writer << boost::format(tr("not enough money to transfer, available only %s, sent amount %s")) %
-                      print_money(e.available()) %
-                      print_money(e.tx_amount());
-            m_errorString = writer.str();
-
-        } catch (const tools::error::not_enough_money& e) {
-            m_status = Status_Error;
-            std::ostringstream writer;
-
-            writer << boost::format(tr("not enough money to transfer, overall balance only %s, sent amount %s")) %
-                      print_money(e.available()) %
-                      print_money(e.tx_amount());
-            m_errorString = writer.str();
-
-        } catch (const tools::error::tx_not_possible& e) {
-            m_status = Status_Error;
-            std::ostringstream writer;
-
-            writer << boost::format(tr("not enough money to transfer, available only %s, transaction amount %s = %s + %s (fee)")) %
-                      print_money(e.available()) %
-                      print_money(e.tx_amount() + e.fee())  %
-                      print_money(e.tx_amount()) %
-                      print_money(e.fee());
-            m_errorString = writer.str();
-
-        } catch (const tools::error::not_enough_outs_to_mix& e) {
-            std::ostringstream writer;
-            writer << tr("not enough outputs for specified ring size") << " = " << (e.mixin_count() + 1) << ":";
-            for (const std::pair<uint64_t, uint64_t> outs_for_amount : e.scanty_outs()) {
-                writer << "\n" << tr("output amount") << " = " << print_money(outs_for_amount.first) << ", " << tr("found outputs to use") << " = " << outs_for_amount.second;
-            }
-            m_errorString = writer.str();
-            m_status = Status_Error;
-        } catch (const tools::error::tx_not_constructed&) {
-            m_errorString = tr("transaction was not constructed");
-            m_status = Status_Error;
-        } catch (const tools::error::tx_rejected& e) {
-            std::ostringstream writer;
-            writer << (boost::format(tr("transaction %s was rejected by daemon with status: ")) % get_transaction_hash(e.tx())) <<  e.status();
-            m_errorString = writer.str();
-            m_status = Status_Error;
-        } catch (const tools::error::tx_sum_overflow& e) {
-            m_errorString = e.what();
-            m_status = Status_Error;
-        } catch (const tools::error::zero_destination&) {
-            m_errorString =  tr("one of destinations is zero");
-            m_status = Status_Error;
-        } catch (const tools::error::tx_too_big& e) {
-            m_errorString =  tr("failed to find a suitable way to split transactions");
-            m_status = Status_Error;
-        } catch (const tools::error::transfer_error& e) {
-            m_errorString = string(tr("unknown transfer error: ")) + e.what();
-            m_status = Status_Error;
-        } catch (const tools::error::wallet_internal_error& e) {
-            m_errorString =  string(tr("internal error: ")) + e.what();
-            m_status = Status_Error;
-        } catch (const std::exception& e) {
-            m_errorString =  string(tr("unexpected error: ")) + e.what();
-            m_status = Status_Error;
-        } catch (...) {
-            m_errorString = tr("unknown error");
-            m_status = Status_Error;
-        }
-    } while (false);
-
-    transaction->m_status = m_status;
-    transaction->m_errorString = m_errorString;
-    return transaction;
-}
 
 void WalletImpl::disposeTransaction(PendingTransaction *t)
 {
@@ -1734,7 +1634,7 @@ bool WalletImpl::isNewWallet() const
     // it's the same case as if it created from scratch, i.e. we need "fast sync"
     // with the daemon (pull hashes instead of pull blocks).
     // If wallet cache is rebuilt, creation height stored in .keys is used.
-    // Watch only wallet is a copy of an existing wallet. 
+    // Watch only wallet is a copy of an existing wallet.
     return !(blockChainHeight() > 1 || m_recoveringFromSeed || m_rebuildWalletCache) && !watchOnly();
 }
 
@@ -1799,7 +1699,7 @@ void WalletImpl::hardForkInfo(uint8_t &version, uint64_t &earliest_height) const
     m_wallet->get_hard_fork_info(version, earliest_height);
 }
 
-bool WalletImpl::useForkRules(uint8_t version, int64_t early_blocks) const 
+bool WalletImpl::useForkRules(uint8_t version, int64_t early_blocks) const
 {
     return m_wallet->use_fork_rules(version,early_blocks);
 }
