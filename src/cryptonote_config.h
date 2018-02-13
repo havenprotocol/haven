@@ -126,8 +126,7 @@
 
 #define THREAD_STACK_SIZE                       5 * 1024 * 1024
 
-#define HF_VERSION_DYNAMIC_FEE                  4
-#define HF_VERSION_MIN_MIXIN_4                  6
+#define DEFAULT_MIXIN                           4
 
 #define PER_KB_FEE_QUANTIZATION_DECIMALS        8
 

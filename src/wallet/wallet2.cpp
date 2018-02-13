@@ -5018,8 +5018,12 @@ int wallet2::get_fee_algorithm()
 //------------------------------------------------------------------------------------------------------------------------------
 uint64_t wallet2::adjust_mixin(uint64_t mixin)
 {
-  // TODO: remove this function and replace with config variable
-  return 4;
+  if (mixin < DEFAULT_MIXIN) {
+    MWARNING("Requested ring size " << (mixin + 1) << " is too low, using 5");
+    mixin = 4;
+  }
+
+  return mixin;
 }
 //----------------------------------------------------------------------------------------------------
 // separated the call(s) to wallet2::transfer into their own function
