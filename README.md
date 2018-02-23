@@ -2,7 +2,7 @@
 
 Copyright (c) 2017-2018 Haven Protocol
 
-Portions Copyright (c) 2014-2017 The Monero Project.   
+Copyright (c) 2014-2017 The Monero Project.   
 Portions Copyright (c) 2012-2013 The Cryptonote developers.
 
 ## Resources
@@ -31,7 +31,7 @@ Haven is an experimental cryptocurrency that proposes a new way of achieving a s
 - Coin symbol: XHV
 - Coin Units:
   - 1 picohaven/havnoshi = 0.000000000001 XHV (10^-12 -smallest unit)
-  - 1 nanohaven = 0.000001 XHV (10^-12)
+  - 1 nanohaven = 0.000000001 XHV (10^-9)
   - 1 microhaven = 0.000001 XHV (10^-6)
   - 1 millihaven = 0.001 XHV (10^-3)
 - Hash algorithm: CryptoNight (Proof-Of-Work)
@@ -78,6 +78,8 @@ library archives (`.a`).
 | Doxygen        | any           | NO       | `doxygen`          | `doxygen`      | YES      | Documentation  |
 | Graphviz       | any           | NO       | `graphviz`         | `graphviz`     | YES      | Documentation  |
 
+
+sudo apt-get install build-essential cmake pkg-config libboost-all-dev libssl-dev libzmq3-dev libunbound-dev libsodium-dev libminiupnpc-dev libunwind8-dev liblzma-dev libreadline6-dev libldns-dev libexpat1-dev libgtest-dev doxygen graphviz
 
 [^] On Debian/Ubuntu `libgtest-dev` only includes sources and headers. You must
 build the library binary manually. This can be done with the following command ```sudo apt-get install libgtest-dev && cd /usr/src/gtest && sudo cmake . && sudo make && sudo mv libg* /usr/lib/ ```
