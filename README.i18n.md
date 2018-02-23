@@ -1,9 +1,9 @@
-Monero daemon internationalization
+Haven daemon internationalization
 ==================================
 
-The Monero command line tools can be translated in various languages.
+The Haven command line tools can be translated in various languages.
 
-In order to use the same translation workflow as the [Monero Core GUI](https://github.com/havenprotocol/haven-wallet), they use Qt Linguist translation files.  However, to avoid the dependencies on Qt this normally implies, they use a custom loader to read those files at runtime.
+In order to use the same translation workflow as the [Haven Core GUI](https://github.com/havenprotocol/haven-gui), they use Qt Linguist translation files.  However, to avoid the dependencies on Qt this normally implies, they use a custom loader to read those files at runtime.
 
 ### Tools for translators
 
