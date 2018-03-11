@@ -1,21 +1,21 @@
 // Copyright (c) 2014-2017, The Monero Project
-// 
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this list of
 //    conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright notice, this list
 //    of conditions and the following disclaimer in the documentation and/or other
 //    materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its contributors may be
 //    used to endorse or promote products derived from this software without specific
 //    prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -25,7 +25,7 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// 
+//
 // Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
 #include "password.h"
@@ -42,11 +42,9 @@
 #include <unistd.h>
 #endif
 
-#ifdef HAVE_READLINE
-  #include "readline_buffer.h"
-#endif
-
 #include "memwipe.h"
+
+#define EOT 0x4
 
 namespace
 {
@@ -102,7 +100,7 @@ namespace
     return r;
   }
 
-#else // end WIN32 
+#else // end WIN32
 
   bool is_cin_tty() noexcept
   {
@@ -134,7 +132,7 @@ namespace
     while (aPass.size() < tools::password_container::max_password_size)
     {
       int ch = getch();
-      if (EOF == ch)
+      if (EOF == ch || ch == EOT)
       {
         return false;
       }
@@ -215,12 +213,12 @@ namespace
 
 } // anonymous namespace
 
-namespace tools 
+namespace tools
 {
   // deleted via private member
   password_container::password_container() noexcept : m_password() {}
   password_container::password_container(std::string&& password) noexcept
-    : m_password(std::move(password)) 
+    : m_password(std::move(password))
   {
   }
 
@@ -229,13 +227,20 @@ namespace tools
     m_password.clear();
   }
 
+  std::atomic<bool> password_container::is_prompting(false);
+
   boost::optional<password_container> password_container::prompt(const bool verify, const char *message)
   {
+    is_prompting = true;
     password_container pass1{};
     password_container pass2{};
     if (is_cin_tty() ? read_from_tty(verify, message, pass1.m_password, pass2.m_password) : read_from_file(pass1.m_password))
+    {
+      is_prompting = false;
       return {std::move(pass1)};
+    }
 
+    is_prompting = false;
     return boost::none;
   }
 
@@ -261,4 +266,4 @@ namespace tools
     password_container wipe{std::move(userpass)};
     return {std::move(out)};
   }
-} 
+}
