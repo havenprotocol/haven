@@ -2327,11 +2327,11 @@ bool Blockchain::check_tx_outputs(const transaction& tx, tx_verification_context
   }
 
 
-  // from v7, allow bulletproofs
+  // from v2, allow bulletproofs
   if (hf_version < 2) {
     if (!tx.rct_signatures.p.bulletproofs.empty())
     {
-      MERROR("Bulletproofs are not allowed before v2 or on mainnet");
+      MERROR("Bulletproofs are not allowed before v2");
       tvc.m_invalid_output = true;
       return false;
     }
@@ -2444,7 +2444,7 @@ bool Blockchain::check_tx_inputs(transaction& tx, tx_verification_context &tvc, 
 
   size_t n_unmixable = 0, n_mixable = 0;
   size_t mixin = std::numeric_limits<size_t>::max();
-  const size_t min_mixin = 4;
+  const size_t min_mixin = hf_version >= HF_2_MIN_MIXIN_9 ? 9 : 4;
   for (const auto& txin : tx.vin)
   {
     // non txin_to_key inputs will be rejected below

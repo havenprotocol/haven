@@ -82,7 +82,7 @@ typedef cryptonote::simple_wallet sw;
 
 #define EXTENDED_LOGS_FILE "wallet_details.log"
 
-#define DEFAULT_MIX 4
+#define DEFAULT_MIX 4 // TODO _H: Adjust closer to HF date
 
 #define MIN_RING_SIZE 5 // Used to inform user about min ring size -- does not track actual protocol
 

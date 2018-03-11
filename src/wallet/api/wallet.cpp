@@ -1057,7 +1057,7 @@ PendingTransaction *WalletImpl::createTransaction(const string &dst_addr, const 
     // TODO:  (https://bitcointalk.org/index.php?topic=753252.msg9985441#msg9985441)
     size_t fake_outs_count = mixin_count > 0 ? mixin_count : m_wallet->default_mixin();
     if (fake_outs_count == 0)
-        fake_outs_count = DEFAULT_MIXIN;
+        fake_outs_count = 4;
 
     PendingTransactionImpl * transaction = new PendingTransactionImpl(*this);
 
