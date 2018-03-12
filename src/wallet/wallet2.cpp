@@ -6538,7 +6538,7 @@ std::vector<wallet2::pending_tx> wallet2::create_transactions_2(std::vector<cryp
   uint64_t needed_fee, available_for_fee = 0;
   uint64_t upper_transaction_size_limit = get_upper_transaction_size_limit();
   const bool use_rct = true;
-  const bool bulletproof = use_fork_rules(2, 0);
+  const bool bulletproof = use_fork_rules(3, 0);
 
   const uint64_t fee_per_kb  = get_per_kb_fee();
   const uint64_t fee_multiplier = get_fee_multiplier(priority, get_fee_algorithm());
@@ -7047,7 +7047,7 @@ std::vector<wallet2::pending_tx> wallet2::create_transactions_from(const crypton
   std::vector<std::vector<get_outs_entry>> outs;
 
   const bool use_rct = true;
-  const bool bulletproof = use_fork_rules(2, 0);
+  const bool bulletproof = use_fork_rules(3, 0);
   const uint64_t fee_per_kb  = get_per_kb_fee();
   const uint64_t fee_multiplier = get_fee_multiplier(priority, get_fee_algorithm());
 
