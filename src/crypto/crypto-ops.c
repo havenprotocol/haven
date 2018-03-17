@@ -1,21 +1,21 @@
 // Copyright (c) 2014-2017, The Monero Project
-// 
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this list of
 //    conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright notice, this list
 //    of conditions and the following disclaimer in the documentation and/or other
 //    materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its contributors may be
 //    used to endorse or promote products derived from this software without specific
 //    prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -25,7 +25,7 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// 
+//
 // Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
 #include <assert.h>
@@ -1234,6 +1234,52 @@ void ge_double_scalarmult_base_vartime(ge_p2 *r, const unsigned char *a, const g
   }
 }
 
+void ge_double_scalarmult_base_vartime_p3(ge_p3 *r3, const unsigned char *a, const ge_p3 *A, const unsigned char *b) {
+  signed char aslide[256];
+  signed char bslide[256];
+  ge_dsmp Ai; /* A, 3A, 5A, 7A, 9A, 11A, 13A, 15A */
+  ge_p1p1 t;
+  ge_p3 u;
+  ge_p2 r;
+  int i;
+
+  slide(aslide, a);
+  slide(bslide, b);
+  ge_dsm_precomp(Ai, A);
+
+  ge_p2_0(&r);
+
+  for (i = 255; i >= 0; --i) {
+    if (aslide[i] || bslide[i]) break;
+  }
+
+  for (; i >= 0; --i) {
+    ge_p2_dbl(&t, &r);
+
+    if (aslide[i] > 0) {
+      ge_p1p1_to_p3(&u, &t);
+      ge_add(&t, &u, &Ai[aslide[i]/2]);
+    } else if (aslide[i] < 0) {
+      ge_p1p1_to_p3(&u, &t);
+      ge_sub(&t, &u, &Ai[(-aslide[i])/2]);
+    }
+
+    if (bslide[i] > 0) {
+      ge_p1p1_to_p3(&u, &t);
+      ge_madd(&t, &u, &ge_Bi[bslide[i]/2]);
+    } else if (bslide[i] < 0) {
+      ge_p1p1_to_p3(&u, &t);
+      ge_msub(&t, &u, &ge_Bi[(-bslide[i])/2]);
+    }
+
+    if (i == 0)
+      ge_p1p1_to_p3(r3, &t);
+    else
+      ge_p1p1_to_p2(&r, &t);
+  }
+}
+
+
 /* From ge_frombytes.c, modified */
 
 int ge_frombytes_vartime(ge_p3 *h, const unsigned char *s) {
@@ -2000,6 +2046,70 @@ void ge_scalarmult(ge_p2 *r, const unsigned char *a, const ge_p3 *A) {
   }
 }
 
+void ge_scalarmult_p3(ge_p3 *r3, const unsigned char *a, const ge_p3 *A) {
+  signed char e[64];
+  int carry, carry2, i;
+  ge_cached Ai[8]; /* 1 * A, 2 * A, ..., 8 * A */
+  ge_p1p1 t;
+  ge_p3 u;
+  ge_p2 r;
+
+  carry = 0; /* 0..1 */
+  for (i = 0; i < 31; i++) {
+    carry += a[i]; /* 0..256 */
+    carry2 = (carry + 8) >> 4; /* 0..16 */
+    e[2 * i] = carry - (carry2 << 4); /* -8..7 */
+    carry = (carry2 + 8) >> 4; /* 0..1 */
+    e[2 * i + 1] = carry2 - (carry << 4); /* -8..7 */
+  }
+  carry += a[31]; /* 0..128 */
+  carry2 = (carry + 8) >> 4; /* 0..8 */
+  e[62] = carry - (carry2 << 4); /* -8..7 */
+  e[63] = carry2; /* 0..8 */
+
+  ge_p3_to_cached(&Ai[0], A);
+  for (i = 0; i < 7; i++) {
+    ge_add(&t, A, &Ai[i]);
+    ge_p1p1_to_p3(&u, &t);
+    ge_p3_to_cached(&Ai[i + 1], &u);
+  }
+
+  ge_p2_0(&r);
+  for (i = 63; i >= 0; i--) {
+    signed char b = e[i];
+    unsigned char bnegative = negative(b);
+    unsigned char babs = b - (((-bnegative) & b) << 1);
+    ge_cached cur, minuscur;
+    ge_p2_dbl(&t, &r);
+    ge_p1p1_to_p2(&r, &t);
+    ge_p2_dbl(&t, &r);
+    ge_p1p1_to_p2(&r, &t);
+    ge_p2_dbl(&t, &r);
+    ge_p1p1_to_p2(&r, &t);
+    ge_p2_dbl(&t, &r);
+    ge_p1p1_to_p3(&u, &t);
+    ge_cached_0(&cur);
+    ge_cached_cmov(&cur, &Ai[0], equal(babs, 1));
+    ge_cached_cmov(&cur, &Ai[1], equal(babs, 2));
+    ge_cached_cmov(&cur, &Ai[2], equal(babs, 3));
+    ge_cached_cmov(&cur, &Ai[3], equal(babs, 4));
+    ge_cached_cmov(&cur, &Ai[4], equal(babs, 5));
+    ge_cached_cmov(&cur, &Ai[5], equal(babs, 6));
+    ge_cached_cmov(&cur, &Ai[6], equal(babs, 7));
+    ge_cached_cmov(&cur, &Ai[7], equal(babs, 8));
+    fe_copy(minuscur.YplusX, cur.YminusX);
+    fe_copy(minuscur.YminusX, cur.YplusX);
+    fe_copy(minuscur.Z, cur.Z);
+    fe_neg(minuscur.T2d, cur.T2d);
+    ge_cached_cmov(&cur, &minuscur, bnegative);
+    ge_add(&t, &u, &cur);
+    if (i == 0)
+      ge_p1p1_to_p3(r3, &t);
+    else
+      ge_p1p1_to_p2(&r, &t);
+  }
+}
+
 void ge_double_scalarmult_precomp_vartime2(ge_p2 *r, const unsigned char *a, const ge_dsmp Ai, const unsigned char *b, const ge_dsmp Bi) {
   signed char aslide[256];
   signed char bslide[256];
@@ -2036,6 +2146,49 @@ void ge_double_scalarmult_precomp_vartime2(ge_p2 *r, const unsigned char *a, con
     }
 
     ge_p1p1_to_p2(r, &t);
+  }
+}
+
+void ge_double_scalarmult_precomp_vartime2_p3(ge_p3 *r3, const unsigned char *a, const ge_dsmp Ai, const unsigned char *b, const ge_dsmp Bi) {
+  signed char aslide[256];
+  signed char bslide[256];
+  ge_p1p1 t;
+  ge_p3 u;
+  ge_p2 r;
+  int i;
+
+  slide(aslide, a);
+  slide(bslide, b);
+
+  ge_p2_0(&r);
+
+  for (i = 255; i >= 0; --i) {
+    if (aslide[i] || bslide[i]) break;
+  }
+
+  for (; i >= 0; --i) {
+    ge_p2_dbl(&t, &r);
+
+    if (aslide[i] > 0) {
+      ge_p1p1_to_p3(&u, &t);
+      ge_add(&t, &u, &Ai[aslide[i]/2]);
+    } else if (aslide[i] < 0) {
+      ge_p1p1_to_p3(&u, &t);
+      ge_sub(&t, &u, &Ai[(-aslide[i])/2]);
+    }
+
+    if (bslide[i] > 0) {
+      ge_p1p1_to_p3(&u, &t);
+      ge_add(&t, &u, &Bi[bslide[i]/2]);
+    } else if (bslide[i] < 0) {
+      ge_p1p1_to_p3(&u, &t);
+      ge_sub(&t, &u, &Bi[(-bslide[i])/2]);
+    }
+
+    if (i == 0)
+      ge_p1p1_to_p3(r3, &t);
+    else
+      ge_p1p1_to_p2(&r, &t);
   }
 }
 
