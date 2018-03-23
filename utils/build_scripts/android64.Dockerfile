@@ -37,7 +37,7 @@ ENV PATH $TOOLCHAIN_DIR/aarch64-linux-android/bin:$TOOLCHAIN_DIR/bin:$PATH
 
 ## Build BOOST
 RUN cd boost_${BOOST_VERSION} \
-    && ./b2 --build-type=minimal link=static runtime-link=static --with-chrono --with-date_time --with-filesystem --with-program_options --with-regex --with-serialization --with-system --with-thread --build-dir=android64 --stagedir=android64 toolset=clang threading=multi threadapi=pthread target-os=android stage
+    && ./b2 --build-type=minimal link=static runtime-link=static --with-chrono --with-date_time --with-filesystem --with-program_options --with-regex --with-serialization --with-system --with-thread --with-locale --build-dir=android64 --stagedir=android64 toolset=clang threading=multi threadapi=pthread target-os=android stage
 
 #INSTALL cmake (avoid 3.7 : https://github.com/android-ndk/ndk/issues/254)
 ENV CMAKE_VERSION 3.6.3
@@ -81,8 +81,8 @@ RUN git clone https://github.com/zeromq/zeromq4-1.git \
 
 RUN ln -s /opt/android/openssl/libcrypto.a /opt/android/openssl/libssl.a ${TOOLCHAIN_DIR}/aarch64-linux-android/lib
 
-RUN git clone https://github.com/monero-project/monero.git \
-    && cd monero \
+RUN git clone https://github.com/havenprotocol/haven.git \
+    && cd haven \
     && mkdir -p build/release \
     && cd build/release \
     && CC=clang CXX=clang++ \
