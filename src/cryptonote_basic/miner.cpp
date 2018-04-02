@@ -430,7 +430,6 @@ namespace cryptonote
     MLOG_SET_THREAD_NAME(std::string("[miner ") + std::to_string(th_local_index) + "]");
     MGINFO("Miner thread was started ["<< th_local_index << "]");
     uint32_t nonce = m_starter_nonce + th_local_index;
-    uint64_t height = 0;
     difficulty_type local_diff = 0;
     uint32_t local_template_ver = 0;
     block b;
@@ -462,7 +461,6 @@ namespace cryptonote
         CRITICAL_REGION_BEGIN(m_template_lock);
         b = m_template;
         local_diff = m_diffic;
-        height = m_height;
         CRITICAL_REGION_END();
         local_template_ver = m_template_no;
         nonce = m_starter_nonce + th_local_index;
