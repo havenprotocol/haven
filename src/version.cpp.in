@@ -1,6 +1,6 @@
 #define DEF_HAVEN_VERSION_TAG "@VERSIONTAG@"
-#define DEF_HAVEN_VERSION "1.0.0"
-#define DEF_HAVEN_RELEASE_NAME "Hurricane"
+#define DEF_HAVEN_VERSION "2.0.0"
+#define DEF_HAVEN_RELEASE_NAME "Watchtower"
 #define DEF_HAVEN_VERSION_FULL DEF_HAVEN_VERSION "-" DEF_HAVEN_VERSION_TAG
 
 #include "version.h"
