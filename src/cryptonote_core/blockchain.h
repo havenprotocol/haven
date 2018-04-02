@@ -902,8 +902,7 @@ namespace cryptonote
      * @param blocks the blocks to be hashed
      * @param map return-by-reference the hashes for each block
      */
-    void block_longhash_worker(uint64_t height, const std::vector<block> &blocks,
-        std::unordered_map<crypto::hash, crypto::hash> &map) const;
+     void block_longhash_worker(cn_pow_hash_v2& hash_ctx, const std::vector<block> &blocks, std::unordered_map<crypto::hash, crypto::hash> &map);
 
     /**
      * @brief returns a set of known alternate chains
@@ -998,6 +997,8 @@ namespace cryptonote
     // some invalid blocks
     blocks_ext_by_hash m_invalid_blocks;     // crypto::hash -> block_extended_info
 
+    cn_pow_hash_v2 m_pow_ctx;
+    std::vector<cn_pow_hash_v2> m_hash_ctxes_multi;
 
     checkpoints m_checkpoints;
     bool m_enforce_dns_checkpoints;

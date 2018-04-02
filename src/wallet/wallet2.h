@@ -406,7 +406,7 @@ namespace tools
 
     struct keys_file_data
     {
-      crypto::chacha_iv iv;
+      crypto::chacha8_iv iv;
       std::string account_data;
 
       BEGIN_SERIALIZE_OBJECT()
@@ -417,7 +417,7 @@ namespace tools
 
     struct cache_file_data
     {
-      crypto::chacha_iv iv;
+      crypto::chacha8_iv iv;
       std::string cache_data;
 
       BEGIN_SERIALIZE_OBJECT()
@@ -1007,7 +1007,7 @@ namespace tools
     void add_unconfirmed_tx(const cryptonote::transaction& tx, uint64_t amount_in, const std::vector<cryptonote::tx_destination_entry> &dests, const crypto::hash &payment_id, uint64_t change_amount, uint32_t subaddr_account, const std::set<uint32_t>& subaddr_indices);
     void generate_genesis(cryptonote::block& b);
     void check_genesis(const crypto::hash& genesis_hash) const; //throws
-    bool generate_chacha_key_from_secret_keys(crypto::chacha_key &key) const;
+    bool generate_chacha8_key_from_secret_keys(crypto::chacha8_key &key) const;
     crypto::hash get_payment_id(const pending_tx &ptx) const;
     void check_acc_out_precomp(const cryptonote::tx_out &o, const crypto::key_derivation &derivation, const std::vector<crypto::key_derivation> &additional_derivations, size_t i, tx_scan_info_t &tx_scan_info) const;
     void parse_block_round(const cryptonote::blobdata &blob, cryptonote::block &bl, crypto::hash &bl_id, bool &error) const;
