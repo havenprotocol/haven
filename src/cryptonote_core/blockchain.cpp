@@ -102,6 +102,7 @@ static const struct {
 } testnet_hard_forks[] = {
   // version 1 from the start of the blockchain
   { 1, 1, 0, 1517398420 },
+  { 2, 2510, 0, 1522713600 }
 };
 
 //------------------------------------------------------------------
