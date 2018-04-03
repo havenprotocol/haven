@@ -75,7 +75,7 @@
 
 #define DIFFICULTY_TARGET                               120  // seconds
 #define DIFFICULTY_WINDOW                               60 // blocks
-#define DIFFICULTY_WINDOW_V2                            60 + 1 // blocks (add one to compensate off-by-one in difficulty calculation)
+#define DIFFICULTY_WINDOW_V2                            70 // blocks
 #define DIFFICULTY_LAG                                  15  // !!!
 #define DIFFICULTY_CUT                                  6  // timestamps to cut after sorting
 #define DIFFICULTY_BLOCKS_COUNT                         DIFFICULTY_WINDOW
