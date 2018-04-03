@@ -206,7 +206,7 @@ namespace cryptonote {
 		// N=45, 60, 70, 100, 140 for T=600, 240, 120, 90, and 60 respectively.
 
 		const int64_t T = static_cast<int64_t>(target_seconds);
-		const int64_t N = DIFFICULTY_WINDOW_V2;
+		size_t N = DIFFICULTY_WINDOW_V2;
 
 		if (timestamps.size() > N) {
 			timestamps.resize(N + 1);
@@ -230,7 +230,7 @@ namespace cryptonote {
 		uint64_t difficulty(0), next_difficulty(0);
 
 		// Loop through N most recent blocks.
-		for (int64_t i = 1; i <= N; i++) {
+		for (size_t i = 1; i <= N; i++) {
 			solveTime = static_cast<int64_t>(timestamps[i]) - static_cast<int64_t>(timestamps[i - 1]);
 			solveTime = std::min<int64_t>((T * 7), std::max<int64_t>(solveTime, (-6 * T)));
 			difficulty = cumulative_difficulties[i] - cumulative_difficulties[i - 1];
