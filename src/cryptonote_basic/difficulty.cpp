@@ -203,7 +203,7 @@ namespace cryptonote {
 		// See https://github.com/zawy12/difficulty-algorithms/issues/3 for other algos.
 		// Do not use "if solvetime < 0 then solvetime = 1" which allows a catastrophic exploit.
 		// T= target_solvetime;
-		// N=45, 60, 70, 100, 140 for T=600, 240, 120, 90, and 60 respectively.
+		// N=45, 55, 70, 95, 140 for T=600, 240, 120, 90, and 60 respectively.
 
 		const int64_t T = static_cast<int64_t>(target_seconds);
 		size_t N = DIFFICULTY_WINDOW_V2;
