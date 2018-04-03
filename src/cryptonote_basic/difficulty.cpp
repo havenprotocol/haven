@@ -203,7 +203,7 @@ namespace cryptonote {
 		// See https://github.com/zawy12/difficulty-algorithms/issues/3 for other algos.
 		// Do not use "if solvetime < 0 then solvetime = 1" which allows a catastrophic exploit.
 		// T= target_solvetime;
-		// N=45, 55, 70, 95, 140 for T=600, 240, 120, 90, and 60 respectively.
+		// N=45, 55, 70, 90, 120 for T=600, 240, 120, 90, and 60
 
 		const int64_t T = static_cast<int64_t>(target_seconds);
 		size_t N = DIFFICULTY_WINDOW_V2;
@@ -221,6 +221,7 @@ namespace cryptonote {
     else if (n < N+1) { N=n-1; }
 
 		// To get an average solvetime to within +/- ~0.1%, use an adjustment factor.
+    // adjust=0.99 for 90 < N < 130
 		const double adjust = 0.998;
 		// The divisor k normalizes LWMA.
 		const double k = N * (N + 1) / 2;
@@ -232,7 +233,7 @@ namespace cryptonote {
 		// Loop through N most recent blocks.
 		for (size_t i = 1; i <= N; i++) {
 			solveTime = static_cast<int64_t>(timestamps[i]) - static_cast<int64_t>(timestamps[i - 1]);
-			solveTime = std::min<int64_t>((T * 7), std::max<int64_t>(solveTime, (-6 * T)));
+			solveTime = std::min<int64_t>((T * 7), std::max<int64_t>(solveTime, (-7 * T)));
 			difficulty = cumulative_difficulties[i] - cumulative_difficulties[i - 1];
 			LWMA += solveTime * i / k;
 			sum_inverse_D += 1 / static_cast<double>(difficulty);
