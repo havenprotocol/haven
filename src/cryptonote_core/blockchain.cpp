@@ -92,6 +92,7 @@ static const struct {
 } mainnet_hard_forks[] = {
   // version 1 from the start of the blockchain
   { 1, 1, 0, 1517398427 },
+  { 2, 38500, 0, 1522818000 }  // 4th April 2018
 };
 
 static const struct {
