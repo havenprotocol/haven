@@ -235,7 +235,7 @@ namespace cryptonote {
 			solveTime = static_cast<int64_t>(timestamps[i]) - static_cast<int64_t>(timestamps[i - 1]);
 			solveTime = std::min<int64_t>((T * 7), std::max<int64_t>(solveTime, (-7 * T)));
 			difficulty = cumulative_difficulties[i] - cumulative_difficulties[i - 1];
-			LWMA += solveTime * i / k;
+			LWMA += (int64_t)(solveTime * i) / k;
 			sum_inverse_D += 1 / static_cast<double>(difficulty);
 		}
 
