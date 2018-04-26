@@ -1,21 +1,21 @@
 // Copyright (c) 2014-2017, The Monero Project
-// 
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this list of
 //    conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright notice, this list
 //    of conditions and the following disclaimer in the documentation and/or other
 //    materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its contributors may be
 //    used to endorse or promote products derived from this software without specific
 //    prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -27,7 +27,9 @@
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "common/dns_utils.h"
+#include "version.h"
 #include "daemon/command_parser_executor.h"
+
 
 #undef MONERO_DEFAULT_LOG_CATEGORY
 #define MONERO_DEFAULT_LOG_CATEGORY "daemon"
@@ -152,7 +154,7 @@ bool t_command_parser_executor::set_log_level(const std::vector<std::string>& ar
   }
 }
 
-bool t_command_parser_executor::print_height(const std::vector<std::string>& args) 
+bool t_command_parser_executor::print_height(const std::vector<std::string>& args)
 {
   if (!args.empty()) return false;
 
@@ -302,23 +304,23 @@ bool t_command_parser_executor::start_mining(const std::vector<std::string>& arg
   if(testnet)
     std::cout << "Mining to a testnet address, make sure this is intentional!" << std::endl;
   uint64_t threads_count = 1;
-  bool do_background_mining = false;  
-  bool ignore_battery = false;  
+  bool do_background_mining = false;
+  bool ignore_battery = false;
   if(args.size() > 4)
   {
     return false;
   }
-  
+
   if(args.size() == 4)
   {
     ignore_battery = args[3] == "true";
-  }  
-  
+  }
+
   if(args.size() >= 3)
   {
     do_background_mining = args[2] == "true";
   }
-  
+
   if(args.size() >= 2)
   {
     bool ok = epee::string_tools::get_xtype_from_string(threads_count, args[1]);
@@ -414,17 +416,17 @@ bool t_command_parser_executor::set_limit_down(const std::vector<std::string>& a
 bool t_command_parser_executor::out_peers(const std::vector<std::string>& args)
 {
 	if (args.empty()) return false;
-	
+
 	unsigned int limit;
 	try {
 		limit = std::stoi(args[0]);
 	}
-	  
+
 	catch(const std::exception& ex) {
 		_erro("stoi exception");
 		return false;
 	}
-	
+
 	return m_executor.out_peers(limit);
 }
 
@@ -631,6 +633,12 @@ bool t_command_parser_executor::sync_info(const std::vector<std::string>& args)
   if (args.size() != 0) return false;
 
   return m_executor.sync_info();
+}
+
+bool t_command_parser_executor::version(const std::vector<std::string>& args)
+{
+  std::cout << "Haven '" << HAVEN_RELEASE_NAME << "' (v" << HAVEN_VERSION_FULL << ")" << std::endl;
+  return true;
 }
 
 } // namespace daemonize
