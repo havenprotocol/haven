@@ -1581,7 +1581,7 @@ simple_wallet::simple_wallet()
   m_cmd_binder.set_handler("sign_transfer",
                            boost::bind(&simple_wallet::sign_transfer, this, _1),
                            tr("sign_transfer [export]"),
-                           tr("Sign a transaction from a file."))
+                           tr("Sign a transaction from a file."));
   m_cmd_binder.set_handler("submit_transfer",
                            boost::bind(&simple_wallet::submit_transfer, this, _1),
                            tr("Submit a signed transaction from a file."));
