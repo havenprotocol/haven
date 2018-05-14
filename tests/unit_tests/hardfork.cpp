@@ -1,21 +1,21 @@
 // Copyright (c) 2014-2017, The Monero Project
-// 
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this list of
 //    conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright notice, this list
 //    of conditions and the following disclaimer in the documentation and/or other
 //    materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its contributors may be
 //    used to endorse or promote products derived from this software without specific
 //    prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -25,7 +25,7 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// 
+//
 // Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
 #include <algorithm>
@@ -111,7 +111,7 @@ public:
   virtual bool for_all_transactions(std::function<bool(const crypto::hash&, const cryptonote::transaction&)>) const { return true; }
   virtual bool for_all_outputs(std::function<bool(uint64_t amount, const crypto::hash &tx_hash, size_t tx_idx)> f) const { return true; }
   virtual bool is_read_only() const { return false; }
-  virtual std::map<uint64_t, std::tuple<uint64_t, uint64_t, uint64_t>> get_output_histogram(const std::vector<uint64_t> &amounts, bool unlocked, uint64_t recent_cutoff) const { return std::map<uint64_t, std::tuple<uint64_t, uint64_t, uint64_t>>(); }
+  virtual std::map<uint64_t, std::tuple<uint64_t, uint64_t, uint64_t>> get_output_histogram(const std::vector<uint64_t> &amounts, bool unlocked, uint64_t recent_cutoff, uint64_t min_count) const { return std::map<uint64_t, std::tuple<uint64_t, uint64_t, uint64_t>>(); }
 
   virtual void add_txpool_tx(const transaction &tx, const txpool_tx_meta_t& details) {}
   virtual void update_txpool_tx(const crypto::hash &txid, const txpool_tx_meta_t& details) {}
@@ -135,8 +135,8 @@ public:
     return blocks.at(height);
   }
   virtual void set_hard_fork_version(uint64_t height, uint8_t version) {
-    if (versions.size() <= height) 
-      versions.resize(height+1); 
+    if (versions.size() <= height)
+      versions.resize(height+1);
     versions[height] = version;
   }
   virtual uint8_t get_hard_fork_version(uint64_t height) const {
@@ -549,4 +549,3 @@ TEST(get, higher)
     ASSERT_EQ(hf.get_ideal_version(6), 3);
     ASSERT_EQ(hf.get_ideal_version(7), 3);
 }
-
