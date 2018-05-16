@@ -330,8 +330,8 @@ namespace nodetool
     bool m_testnet;
   };
 
-    const int64_t default_limit_up = 2048;
-    const int64_t default_limit_down = 8192;
+    const int64_t default_limit_up = 2048;    // kB/s
+    const int64_t default_limit_down = 8192;  // kB/s
     extern const command_line::arg_descriptor<std::string> arg_p2p_bind_ip;
     extern const command_line::arg_descriptor<std::string> arg_p2p_bind_port;
     extern const command_line::arg_descriptor<std::string> arg_testnet_p2p_bind_port;
