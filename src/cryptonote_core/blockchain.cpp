@@ -343,11 +343,11 @@ bool Blockchain::init(BlockchainDB* db, const bool testnet, bool offline, const 
     block_verification_context bvc = boost::value_initialized<block_verification_context>();
     if (m_testnet)
     {
-      generate_genesis_block(bl, config::testnet::GENESIS_TX, config::testnet::GENESIS_NONCE);
+      generate_genesis_block(bl, config::testnet::GENESIS_TX, config::testnet::GENESIS_NONCE, m_testnet);
     }
     else
     {
-      generate_genesis_block(bl, config::GENESIS_TX, config::GENESIS_NONCE);
+      generate_genesis_block(bl, config::GENESIS_TX, config::GENESIS_NONCE, m_testnet);
     }
     add_new_block(bl, bvc);
     CHECK_AND_ASSERT_MES(!bvc.m_verifivation_failed, false, "Failed to add genesis block to blockchain");
@@ -1038,6 +1038,33 @@ bool Blockchain::validate_miner_transaction(const block& b, size_t cumulative_bl
     MERROR_VER("block size " << cumulative_block_size << " is bigger than allowed for this blockchain");
     return false;
   }
+
+  if (version >= 3) {
+    if (already_generated_coins != 0)
+    {
+      uint64_t governance_reward = get_governance_reward(m_db->height(), base_reward);
+
+      if (b.miner_tx.vout.back().amount != governance_reward)
+      {
+        MERROR("Governance reward amount incorrect.  Should be: " << print_money(governance_reward) << ", is: " << print_money(b.miner_tx.vout.back().amount));
+        return false;
+      }
+
+      std::string governance_wallet_address_str;
+      if (m_testnet) {
+        governance_wallet_address_str = ::config::testnet::GOVERNANCE_WALLET_ADDRESS;
+      } else {
+        governance_wallet_address_str = ::config::GOVERNANCE_WALLET_ADDRESS;
+      }
+
+      if (!validate_governance_reward_key(m_db->height(), governance_wallet_address_str, b.miner_tx.vout.size() - 1, boost::get<txout_to_key>(b.miner_tx.vout.back().target).key, m_testnet))
+      {
+        MERROR("Governance reward public key incorrect.");
+        return false;
+      }
+    }
+  }
+
   if(base_reward + fee < money_in_use)
   {
     MERROR_VER("coinbase transaction spend too much money (" << print_money(money_in_use) << "). Block reward is " << print_money(base_reward + fee) << "(" << print_money(base_reward) << "+" << print_money(fee) << ")");
@@ -1181,7 +1208,7 @@ bool Blockchain::create_block_template(block& b, const account_public_address& m
   //make blocks coin-base tx looks close to real coinbase tx to get truthful blob size
   uint8_t hf_version = m_hardfork->get_current_version();
   size_t max_outs = 1;
-  bool r = construct_miner_tx(height, median_size, already_generated_coins, txs_size, fee, miner_address, b.miner_tx, ex_nonce, max_outs, hf_version);
+  bool r = construct_miner_tx(height, median_size, already_generated_coins, txs_size, fee, miner_address, b.miner_tx, ex_nonce, max_outs, hf_version, m_testnet);
   CHECK_AND_ASSERT_MES(r, false, "Failed to construct miner tx, first chance");
   size_t cumulative_size = txs_size + get_object_blobsize(b.miner_tx);
 #if defined(DEBUG_CREATE_BLOCK_TEMPLATE)
@@ -1190,7 +1217,7 @@ bool Blockchain::create_block_template(block& b, const account_public_address& m
 #endif
   for (size_t try_count = 0; try_count != 10; ++try_count)
   {
-    r = construct_miner_tx(height, median_size, already_generated_coins, cumulative_size, fee, miner_address, b.miner_tx, ex_nonce, max_outs, hf_version);
+    r = construct_miner_tx(height, median_size, already_generated_coins, cumulative_size, fee, miner_address, b.miner_tx, ex_nonce, max_outs, hf_version, m_testnet);
 
     CHECK_AND_ASSERT_MES(r, false, "Failed to construct miner tx, second chance");
     size_t coinbase_blob_size = get_object_blobsize(b.miner_tx);
