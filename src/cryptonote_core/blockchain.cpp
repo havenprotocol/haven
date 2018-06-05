@@ -3637,7 +3637,7 @@ void Blockchain::set_enforce_dns_checkpoints(bool enforce_checkpoints)
 }
 
 //------------------------------------------------------------------
-void Blockchain::block_longhash_worker(cn_pow_hash_v2& hash_ctx, const std::vector<block> &blocks, std::unordered_map<crypto::hash, crypto::hash> &map)
+void Blockchain::block_longhash_worker(cn_pow_hash_v3& hash_ctx, const std::vector<block> &blocks, std::unordered_map<crypto::hash, crypto::hash> &map)
 {
   TIME_MEASURE_START(t);
 
