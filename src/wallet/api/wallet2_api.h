@@ -767,6 +767,17 @@ struct WalletManager
      */
     virtual Wallet * recoveryWallet(const std::string &path, const std::string &memo, bool testnet = false, uint64_t restoreHeight = 0) = 0;
 
+    /*!
+     * \brief  recovers existing wallet using memo (electrum seed) with password
+     * \param  path           Name of wallet file to be created
+     * \param  password       Password of wallet file
+     * \param  memo           memo (25 words electrum seed)
+     * \param  testnet        testnet
+     * \param  restoreHeight  restore from start height
+     * \return                Wallet instance (Wallet::status() needs to be called to check if recovered successfully)
+     */
+    virtual Wallet * recoveryWallet(const std::string &path, const std::string &password, const std::string &memo, bool testnet = false, uint64_t restoreHeight = 0) = 0;
+
    /*!
     * \brief  recovers existing wallet using keys. Creates a view only wallet if spend key is omitted
     * \param  path           Name of wallet file to be created

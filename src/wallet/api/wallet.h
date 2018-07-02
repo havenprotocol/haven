@@ -62,6 +62,7 @@ public:
                             const std::string &language) const;
     bool open(const std::string &path, const std::string &password);
     bool recover(const std::string &path, const std::string &seed);
+    bool recover(const std::string &path, const std::string &password, const std::string &seed);
     bool recoverFromKeys(const std::string &path,
                             const std::string &language,
                             const std::string &address_string,

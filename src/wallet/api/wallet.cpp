@@ -570,6 +570,11 @@ bool WalletImpl::open(const std::string &path, const std::string &password)
 
 bool WalletImpl::recover(const std::string &path, const std::string &seed)
 {
+  return recover(path, "", seed);
+}
+
+bool WalletImpl::recover(const std::string &path, const std::string &password, const std::string &seed)
+{
     clearStatus();
     m_errorString.clear();
     if (seed.empty()) {
@@ -590,7 +595,7 @@ bool WalletImpl::recover(const std::string &path, const std::string &seed)
 
     try {
         m_wallet->set_seed_language(old_language);
-        m_wallet->generate(path, "", recovery_key, true, false);
+        m_wallet->generate(path, password, recovery_key, true, false);
 
     } catch (const std::exception &e) {
         m_status = Status_Critical;

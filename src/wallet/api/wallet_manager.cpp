@@ -72,23 +72,28 @@ Wallet *WalletManagerImpl::openWallet(const std::string &path, const std::string
     WalletImpl * wallet = new WalletImpl(testnet);
     wallet->open(path, password);
     //Refresh addressBook
-    wallet->addressBook()->refresh(); 
+    wallet->addressBook()->refresh();
     return wallet;
 }
 
 Wallet *WalletManagerImpl::recoveryWallet(const std::string &path, const std::string &memo, bool testnet, uint64_t restoreHeight)
 {
+  return recoveryWallet(path, "", memo, testnet, restoreHeight);
+}
+
+Wallet *WalletManagerImpl::recoveryWallet(const std::string &path, const std::string &password, const std::string &memo, bool testnet, uint64_t restoreHeight)
+{
     WalletImpl * wallet = new WalletImpl(testnet);
     if(restoreHeight > 0){
         wallet->setRefreshFromBlockHeight(restoreHeight);
     }
-    wallet->recover(path, memo);
+    wallet->recover(path, password, memo);
     return wallet;
 }
 
-Wallet *WalletManagerImpl::createWalletFromKeys(const std::string &path, 
+Wallet *WalletManagerImpl::createWalletFromKeys(const std::string &path,
                                                 const std::string &language,
-                                                bool testnet, 
+                                                bool testnet,
                                                 uint64_t restoreHeight,
                                                 const std::string &addressString,
                                                 const std::string &viewKeyString,
