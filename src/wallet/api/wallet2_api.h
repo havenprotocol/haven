@@ -542,8 +542,12 @@ struct Wallet
     static std::string paymentIdFromAddress(const std::string &str, bool testnet);
     static uint64_t maximumAllowedAmount();
     // Easylogger wrapper
-    static void init(const char *argv0, const char *default_log_base_name);
-    static void debug(const std::string &str);
+    static void init(const char *argv0, const char *default_log_base_name) { init(argv0, default_log_base_name, "", true); }
+    static void init(const char *argv0, const char *default_log_base_name, const std::string &log_path, bool console);
+    static void debug(const std::string &category, const std::string &str);
+    static void info(const std::string &category, const std::string &str);
+    static void warning(const std::string &category, const std::string &str);
+    static void error(const std::string &category, const std::string &str);
 
    /**
     * @brief StartRefresh - Start/resume refresh thread (refresh every 10 seconds)

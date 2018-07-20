@@ -290,13 +290,30 @@ uint64_t Wallet::maximumAllowedAmount()
     return std::numeric_limits<uint64_t>::max();
 }
 
-void Wallet::init(const char *argv0, const char *default_log_base_name) {
+void Wallet::init(const char *argv0, const char *default_log_base_name, const std::string &log_path, bool console) {
+#ifdef WIN32
+    // Activate UTF-8 support for Boost filesystem classes on Windows
+    std::locale::global(boost::locale::generator().generate(""));
+    boost::filesystem::path::imbue(std::locale());
+#endif
     epee::string_tools::set_module_name_and_folder(argv0);
-    mlog_configure(mlog_get_default_log_path(default_log_base_name), true);
+    mlog_configure(log_path.empty() ? mlog_get_default_log_path(default_log_base_name) : log_path.c_str(), console);
 }
 
-void Wallet::debug(const std::string &str) {
-    MDEBUG(str);
+void Wallet::debug(const std::string &category, const std::string &str) {
+    MCDEBUG(category.empty() ? MONERO_DEFAULT_LOG_CATEGORY : category.c_str(), str);
+}
+
+void Wallet::info(const std::string &category, const std::string &str) {
+    MCINFO(category.empty() ? MONERO_DEFAULT_LOG_CATEGORY : category.c_str(), str);
+}
+
+void Wallet::warning(const std::string &category, const std::string &str) {
+    MCWARNING(category.empty() ? MONERO_DEFAULT_LOG_CATEGORY : category.c_str(), str);
+}
+
+void Wallet::error(const std::string &category, const std::string &str) {
+    MCERROR(category.empty() ? MONERO_DEFAULT_LOG_CATEGORY : category.c_str(), str);
 }
 
 ///////////////////////// WalletImpl implementation ////////////////////////
