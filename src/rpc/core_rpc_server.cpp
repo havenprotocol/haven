@@ -157,6 +157,7 @@ namespace cryptonote
     res.start_time = (uint64_t)m_core.get_start_time();
     res.free_space = m_restricted ? std::numeric_limits<uint64_t>::max() : m_core.get_free_space();
     res.offline = m_core.offline();
+    res.database_size = m_core.get_blockchain_storage().get_db().get_database_size();
     return true;
   }
   //------------------------------------------------------------------------------------------------------------------------------
@@ -1343,6 +1344,7 @@ namespace cryptonote
     res.start_time = (uint64_t)m_core.get_start_time();
     res.free_space = m_restricted ? std::numeric_limits<uint64_t>::max() : m_core.get_free_space();
     res.offline = m_core.offline();
+    res.database_size = m_core.get_blockchain_storage().get_db().get_database_size();
     return true;
   }
   //------------------------------------------------------------------------------------------------------------------------------

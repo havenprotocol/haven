@@ -361,6 +361,8 @@ private:
 
   virtual bool is_read_only() const;
 
+  virtual uint64_t get_database_size() const;
+
   // migrate from older DB version to current
   void migrate(const uint32_t oldversion);
 

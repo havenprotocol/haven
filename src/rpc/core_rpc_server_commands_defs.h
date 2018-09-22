@@ -1,21 +1,21 @@
 // Copyright (c) 2014-2017, The Monero Project
-// 
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this list of
 //    conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright notice, this list
 //    of conditions and the following disclaimer in the documentation and/or other
 //    materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its contributors may be
 //    used to endorse or promote products derived from this software without specific
 //    prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -25,7 +25,7 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// 
+//
 // Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
 #pragma once
@@ -49,7 +49,7 @@ namespace cryptonote
 // advance which version they will stop working with
 // Don't go over 32767 for any of these
 #define CORE_RPC_VERSION_MAJOR 1
-#define CORE_RPC_VERSION_MINOR 17
+#define CORE_RPC_VERSION_MINOR 21
 #define MAKE_CORE_RPC_VERSION(major,minor) (((major)<<16)|(minor))
 #define CORE_RPC_VERSION MAKE_CORE_RPC_VERSION(CORE_RPC_VERSION_MAJOR, CORE_RPC_VERSION_MINOR)
 
@@ -207,15 +207,15 @@ namespace cryptonote
           KV_SERIALIZE(view_key)
         END_KV_SERIALIZE_MAP()
       };
-      
+
       struct spent_output {
         uint64_t amount;
         std::string key_image;
         std::string tx_pub_key;
         uint64_t out_index;
         uint32_t mixin;
-        
-        
+
+
         BEGIN_KV_SERIALIZE_MAP()
           KV_SERIALIZE(amount)
           KV_SERIALIZE(key_image)
@@ -224,7 +224,7 @@ namespace cryptonote
           KV_SERIALIZE(mixin)
         END_KV_SERIALIZE_MAP()
       };
-      
+
       struct transaction
       {
         uint64_t id;
@@ -255,8 +255,8 @@ namespace cryptonote
           KV_SERIALIZE(mixin)
         END_KV_SERIALIZE_MAP()
       };
-      
-      
+
+
       struct response
       {
         //std::list<std::string> txs_as_json;
@@ -278,7 +278,7 @@ namespace cryptonote
         END_KV_SERIALIZE_MAP()
       };
   };
-  
+
   //-----------------------------------------------
   struct COMMAND_RPC_GET_ADDRESS_INFO
   {
@@ -292,15 +292,15 @@ namespace cryptonote
           KV_SERIALIZE(view_key)
         END_KV_SERIALIZE_MAP()
       };
-      
-      struct spent_output 
+
+      struct spent_output
       {
         uint64_t amount;
         std::string key_image;
         std::string tx_pub_key;
         uint64_t  out_index;
         uint32_t  mixin;
-        
+
         BEGIN_KV_SERIALIZE_MAP()
           KV_SERIALIZE(amount)
           KV_SERIALIZE(key_image)
@@ -309,11 +309,11 @@ namespace cryptonote
           KV_SERIALIZE(mixin)
         END_KV_SERIALIZE_MAP()
       };
-  
-      
-      
+
+
+
       struct response
-      { 
+      {
         uint64_t locked_funds;
         uint64_t total_received;
         uint64_t total_sent;
@@ -326,7 +326,7 @@ namespace cryptonote
         BEGIN_KV_SERIALIZE_MAP()
           KV_SERIALIZE(locked_funds)
           KV_SERIALIZE(total_received)
-          KV_SERIALIZE(total_sent)        
+          KV_SERIALIZE(total_sent)
           KV_SERIALIZE(scanned_height)
           KV_SERIALIZE(scanned_block_height)
           KV_SERIALIZE(start_height)
@@ -336,7 +336,7 @@ namespace cryptonote
         END_KV_SERIALIZE_MAP()
       };
   };
-  
+
   //-----------------------------------------------
   struct COMMAND_RPC_GET_UNSPENT_OUTS
   {
@@ -359,8 +359,8 @@ namespace cryptonote
           KV_SERIALIZE(dust_threshold)
         END_KV_SERIALIZE_MAP()
       };
-    
-      
+
+
       struct output {
         uint64_t amount;
         std::string public_key;
@@ -372,7 +372,7 @@ namespace cryptonote
         std::string tx_prefix_hash;
         std::vector<std::string> spend_key_images;
         uint64_t timestamp;
-        uint64_t height;                
+        uint64_t height;
 
 
         BEGIN_KV_SERIALIZE_MAP()
@@ -384,12 +384,12 @@ namespace cryptonote
           KV_SERIALIZE(tx_hash)
           KV_SERIALIZE(tx_pub_key)
           KV_SERIALIZE(tx_prefix_hash)
-          KV_SERIALIZE(spend_key_images)  
-          KV_SERIALIZE(timestamp)  
-          KV_SERIALIZE(height)                                    
+          KV_SERIALIZE(spend_key_images)
+          KV_SERIALIZE(timestamp)
+          KV_SERIALIZE(height)
         END_KV_SERIALIZE_MAP()
       };
-      
+
       struct response
       {
         uint64_t amount;
@@ -406,7 +406,7 @@ namespace cryptonote
         END_KV_SERIALIZE_MAP()
       };
   };
-  
+
   //-----------------------------------------------
   struct COMMAND_RPC_GET_RANDOM_OUTS
   {
@@ -420,8 +420,8 @@ namespace cryptonote
           KV_SERIALIZE(count)
         END_KV_SERIALIZE_MAP()
       };
-    
-      
+
+
       struct output {
         std::string public_key;
         uint64_t global_index;
@@ -430,20 +430,20 @@ namespace cryptonote
         BEGIN_KV_SERIALIZE_MAP()
           KV_SERIALIZE(public_key)
           KV_SERIALIZE(global_index)
-          KV_SERIALIZE(rct)                                 
+          KV_SERIALIZE(rct)
         END_KV_SERIALIZE_MAP()
       };
-      
+
       struct amount_out {
         uint64_t amount;
         std::vector<output> outputs;
         BEGIN_KV_SERIALIZE_MAP()
           KV_SERIALIZE(amount)
-          KV_SERIALIZE(outputs)                                
+          KV_SERIALIZE(outputs)
         END_KV_SERIALIZE_MAP()
-        
+
       };
-      
+
       struct response
       {
         std::vector<amount_out> amount_outs;
@@ -466,16 +466,16 @@ namespace cryptonote
         BEGIN_KV_SERIALIZE_MAP()
           KV_SERIALIZE(address)
           KV_SERIALIZE(view_key)
-          KV_SERIALIZE(tx)  
+          KV_SERIALIZE(tx)
         END_KV_SERIALIZE_MAP()
       };
-    
-      
+
+
       struct response
       {
         std::string status;
         std::string error;
-        
+
         BEGIN_KV_SERIALIZE_MAP()
           KV_SERIALIZE(status)
           KV_SERIALIZE(error)
@@ -493,18 +493,18 @@ namespace cryptonote
 
         BEGIN_KV_SERIALIZE_MAP()
           KV_SERIALIZE(address)
-          KV_SERIALIZE(view_key) 
-          KV_SERIALIZE(create_account) 
+          KV_SERIALIZE(view_key)
+          KV_SERIALIZE(create_account)
         END_KV_SERIALIZE_MAP()
       };
-    
-      
+
+
       struct response
       {
         std::string status;
         std::string reason;
         bool new_address;
-        
+
         BEGIN_KV_SERIALIZE_MAP()
           KV_SERIALIZE(status)
           KV_SERIALIZE(reason)
@@ -519,14 +519,14 @@ namespace cryptonote
       {
         std::string address;
         std::string view_key;
-        
+
         BEGIN_KV_SERIALIZE_MAP()
           KV_SERIALIZE(address)
           KV_SERIALIZE(view_key)
         END_KV_SERIALIZE_MAP()
       };
-    
-      
+
+
       struct response
       {
         std::string payment_id;
@@ -535,14 +535,14 @@ namespace cryptonote
         bool request_fulfilled;
         std::string payment_address;
         std::string status;
-        
+
         BEGIN_KV_SERIALIZE_MAP()
           KV_SERIALIZE(payment_id)
           KV_SERIALIZE(import_fee)
           KV_SERIALIZE(new_request)
           KV_SERIALIZE(request_fulfilled)
           KV_SERIALIZE(payment_address)
-          KV_SERIALIZE(status)            
+          KV_SERIALIZE(status)
         END_KV_SERIALIZE_MAP()
       };
   };
@@ -883,8 +883,8 @@ namespace cryptonote
       BEGIN_KV_SERIALIZE_MAP()
         KV_SERIALIZE(miner_address)
         KV_SERIALIZE(threads_count)
-        KV_SERIALIZE(do_background_mining)        
-        KV_SERIALIZE(ignore_battery)        
+        KV_SERIALIZE(do_background_mining)
+        KV_SERIALIZE(ignore_battery)
       END_KV_SERIALIZE_MAP()
     };
 
@@ -929,6 +929,7 @@ namespace cryptonote
       uint64_t start_time;
       uint64_t free_space;
       bool offline;
+      uint64_t database_size;
 
       BEGIN_KV_SERIALIZE_MAP()
         KV_SERIALIZE(status)
@@ -951,11 +952,12 @@ namespace cryptonote
         KV_SERIALIZE(start_time)
         KV_SERIALIZE(free_space)
         KV_SERIALIZE(offline)
+        KV_SERIALIZE(database_size)
       END_KV_SERIALIZE_MAP()
     };
   };
 
-    
+
   //-----------------------------------------------
   struct COMMAND_RPC_STOP_MINING
   {
@@ -1028,7 +1030,7 @@ namespace cryptonote
       END_KV_SERIALIZE_MAP()
     };
   };
-  
+
   //
   struct COMMAND_RPC_GETBLOCKCOUNT
   {
@@ -1095,7 +1097,7 @@ namespace cryptonote
   struct COMMAND_RPC_SUBMITBLOCK
   {
     typedef std::vector<std::string> request;
-    
+
     struct response
     {
       std::string status;
@@ -1105,7 +1107,7 @@ namespace cryptonote
       END_KV_SERIALIZE_MAP()
     };
   };
-  
+
   struct block_header_response
   {
       uint8_t major_version;
@@ -1121,7 +1123,7 @@ namespace cryptonote
       uint64_t reward;
       uint64_t block_size;
       uint64_t num_txes;
-      
+
       BEGIN_KV_SERIALIZE_MAP()
         KV_SERIALIZE(major_version)
         KV_SERIALIZE(minor_version)
@@ -1151,7 +1153,7 @@ namespace cryptonote
     {
       std::string status;
       block_header_response block_header;
-      
+
       BEGIN_KV_SERIALIZE_MAP()
         KV_SERIALIZE(block_header)
         KV_SERIALIZE(status)
@@ -1159,7 +1161,7 @@ namespace cryptonote
     };
 
   };
-  
+
   struct COMMAND_RPC_GET_BLOCK_HEADER_BY_HASH
   {
     struct request
@@ -1175,7 +1177,7 @@ namespace cryptonote
     {
       std::string status;
       block_header_response block_header;
-      
+
       BEGIN_KV_SERIALIZE_MAP()
         KV_SERIALIZE(block_header)
         KV_SERIALIZE(status)
@@ -1199,7 +1201,7 @@ namespace cryptonote
     {
       std::string status;
       block_header_response block_header;
-      
+
       BEGIN_KV_SERIALIZE_MAP()
         KV_SERIALIZE(block_header)
         KV_SERIALIZE(status)
@@ -1229,7 +1231,7 @@ namespace cryptonote
       std::vector<std::string> tx_hashes;
       std::string blob;
       std::string json;
-      
+
       BEGIN_KV_SERIALIZE_MAP()
         KV_SERIALIZE(block_header)
         KV_SERIALIZE(miner_tx_hash)
@@ -1545,7 +1547,7 @@ namespace cryptonote
     {
       std::string status;
       std::list<connection_info> connections;
-      
+
       BEGIN_KV_SERIALIZE_MAP()
         KV_SERIALIZE(status)
         KV_SERIALIZE(connections)
@@ -1596,7 +1598,7 @@ namespace cryptonote
       END_KV_SERIALIZE_MAP()
     };
   };
-  
+
   struct COMMAND_RPC_FAST_EXIT
   {
 	struct request
@@ -1604,17 +1606,17 @@ namespace cryptonote
       BEGIN_KV_SERIALIZE_MAP()
       END_KV_SERIALIZE_MAP()
     };
-    
+
     struct response
     {
 	  std::string status;
-	  
+
       BEGIN_KV_SERIALIZE_MAP()
         KV_SERIALIZE(status)
       END_KV_SERIALIZE_MAP()
     };
   };
-  
+
   struct COMMAND_RPC_GET_LIMIT
   {
     struct request
@@ -1622,13 +1624,13 @@ namespace cryptonote
       BEGIN_KV_SERIALIZE_MAP()
       END_KV_SERIALIZE_MAP()
     };
-    
+
     struct response
     {
       std::string status;
       uint64_t limit_up;
       uint64_t limit_down;
-      
+
       BEGIN_KV_SERIALIZE_MAP()
         KV_SERIALIZE(status)
         KV_SERIALIZE(limit_up)
@@ -1636,26 +1638,26 @@ namespace cryptonote
       END_KV_SERIALIZE_MAP()
     };
   };
-  
+
   struct COMMAND_RPC_SET_LIMIT
   {
     struct request
     {
       int64_t limit_down;
       int64_t limit_up;
-      
+
       BEGIN_KV_SERIALIZE_MAP()
         KV_SERIALIZE(limit_down)
         KV_SERIALIZE(limit_up)
       END_KV_SERIALIZE_MAP()
     };
-    
+
     struct response
     {
       std::string status;
       uint64_t limit_up;
       uint64_t limit_down;
-      
+
       BEGIN_KV_SERIALIZE_MAP()
         KV_SERIALIZE(status)
         KV_SERIALIZE(limit_up)
@@ -1663,7 +1665,7 @@ namespace cryptonote
       END_KV_SERIALIZE_MAP()
     };
   };
-  
+
   struct COMMAND_RPC_OUT_PEERS
   {
 	struct request
@@ -1673,17 +1675,17 @@ namespace cryptonote
         KV_SERIALIZE(out_peers)
       END_KV_SERIALIZE_MAP()
     };
-    
+
     struct response
     {
 	  std::string status;
-	  
+
       BEGIN_KV_SERIALIZE_MAP()
         KV_SERIALIZE(status)
       END_KV_SERIALIZE_MAP()
     };
   };
-    
+
   struct COMMAND_RPC_START_SAVE_GRAPH
   {
 	struct request
@@ -1691,17 +1693,17 @@ namespace cryptonote
       BEGIN_KV_SERIALIZE_MAP()
       END_KV_SERIALIZE_MAP()
     };
-    
+
     struct response
     {
 	  std::string status;
-	  
+
       BEGIN_KV_SERIALIZE_MAP()
         KV_SERIALIZE(status)
       END_KV_SERIALIZE_MAP()
     };
   };
-  
+
   struct COMMAND_RPC_STOP_SAVE_GRAPH
   {
 	struct request
@@ -1709,11 +1711,11 @@ namespace cryptonote
       BEGIN_KV_SERIALIZE_MAP()
       END_KV_SERIALIZE_MAP()
     };
-    
+
     struct response
     {
 	  std::string status;
-	  
+
       BEGIN_KV_SERIALIZE_MAP()
         KV_SERIALIZE(status)
       END_KV_SERIALIZE_MAP()
