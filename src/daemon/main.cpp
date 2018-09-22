@@ -269,6 +269,9 @@ int main(int argc, char const * argv[])
         }
         else
         {
+#ifdef HAVE_READLINE
+        rdln::suspend_readline pause_readline;
+#endif
           std::cerr << "Unknown command" << std::endl;
           return 1;
         }
