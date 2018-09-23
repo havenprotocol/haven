@@ -2207,7 +2207,7 @@ bool Blockchain::find_blockchain_supplement(const uint64_t req_start_block, cons
   m_db->block_txn_start(true);
   total_height = get_current_blockchain_height();
   size_t count = 0, size = 0;
-  for(size_t i = start_height; i < total_height && count < max_count && (size < FIND_BLOCKCHAIN_SUPPLEMENT_MAX_SIZE || count < 3); i++, count++)
+  for(uint64_t i = start_height; i < total_height && count < max_count && (size < FIND_BLOCKCHAIN_SUPPLEMENT_MAX_SIZE || count < 3); i++, count++)
   {
     blocks.resize(blocks.size()+1);
     blocks.back().first = m_db->get_block_blob_from_height(i);
