@@ -1,21 +1,21 @@
 // Copyright (c) 2017, The Monero Project
-// 
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this list of
 //    conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright notice, this list
 //    of conditions and the following disclaimer in the documentation and/or other
 //    materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its contributors may be
 //    used to endorse or promote products derived from this software without specific
 //    prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -25,7 +25,7 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// 
+//
 // Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
 #include <vector>
@@ -57,7 +57,11 @@ void block_queue::add_blocks(uint64_t height, std::list<cryptonote::block_comple
   bool has_hashes = remove_span(height, &hashes);
   blocks.insert(span(height, std::move(bcel), connection_id, rate, size));
   if (has_hashes)
+  {
+    for (const crypto::hash &h: hashes)
+      requested_hashes.insert(h);
     set_span_hashes(height, connection_id, hashes);
+  }
 }
 
 void block_queue::add_blocks(uint64_t height, uint64_t nblocks, const boost::uuids::uuid &connection_id, boost::posix_time::ptime time)
@@ -76,9 +80,17 @@ void block_queue::flush_spans(const boost::uuids::uuid &connection_id, bool all)
     block_map::iterator j = i++;
     if (j->connection_id == connection_id && (all || j->blocks.size() == 0))
     {
-      blocks.erase(j);
+      erase_block(j);
     }
   }
+}
+
+void block_queue::erase_block(block_map::iterator j)
+{
+  CHECK_AND_ASSERT_THROW_MES(j != blocks.end(), "Invalid iterator");
+  for (const crypto::hash &h: j->hashes)
+    requested_hashes.erase(h);
+  blocks.erase(j);
 }
 
 void block_queue::flush_stale_spans(const std::set<boost::uuids::uuid> &live_connections)
@@ -92,7 +104,7 @@ void block_queue::flush_stale_spans(const std::set<boost::uuids::uuid> &live_con
     block_map::iterator j = i++;
     if (live_connections.find(j->connection_id) == live_connections.end() && j->blocks.size() == 0)
     {
-      blocks.erase(j);
+      erase_block(j);
     }
   }
 }
@@ -106,7 +118,7 @@ bool block_queue::remove_span(uint64_t start_block_height, std::list<crypto::has
     {
       if (hashes)
         *hashes = std::move(i->hashes);
-      blocks.erase(i);
+      erase_block(i);
       return true;
     }
   }
@@ -121,7 +133,7 @@ void block_queue::remove_spans(const boost::uuids::uuid &connection_id, uint64_t
     block_map::iterator j = i++;
     if (j->connection_id == connection_id && j->start_block_height <= start_block_height)
     {
-      blocks.erase(j);
+      erase_block(j);
     }
   }
 }
@@ -160,16 +172,15 @@ std::string block_queue::get_overview() const
   return s;
 }
 
+inline bool block_queue::requested_internal(const crypto::hash &hash) const
+{
+  return requested_hashes.find(hash) != requested_hashes.end();
+}
+
 bool block_queue::requested(const crypto::hash &hash) const
 {
   boost::unique_lock<boost::recursive_mutex> lock(mutex);
-  for (const auto &span: blocks)
-  {
-    for (const auto &h: span.hashes)
-      if (h == hash)
-        return true;
-  }
-  return false;
+  return requested_internal(hash);
 }
 
 std::pair<uint64_t, uint64_t> block_queue::reserve_span(uint64_t first_block_height, uint64_t last_block_height, uint64_t max_blocks, const boost::uuids::uuid &connection_id, const std::list<crypto::hash> &block_hashes, boost::posix_time::ptime time)
@@ -184,7 +195,7 @@ std::pair<uint64_t, uint64_t> block_queue::reserve_span(uint64_t first_block_hei
 
   uint64_t span_start_height = last_block_height - block_hashes.size() + 1;
   std::list<crypto::hash>::const_iterator i = block_hashes.begin();
-  while (i != block_hashes.end() && requested(*i))
+  while (i != block_hashes.end() && requested_internal(*i))
   {
     ++i;
     ++span_start_height;
@@ -256,8 +267,10 @@ void block_queue::set_span_hashes(uint64_t start_height, const boost::uuids::uui
     if (i->start_block_height == start_height && i->connection_id == connection_id)
     {
       span s = *i;
-      blocks.erase(i);
+      erase_block(i);
       s.hashes = std::move(hashes);
+      for (const crypto::hash &h: s.hashes)
+        requested_hashes.insert(h);
       blocks.insert(s);
       return;
     }
