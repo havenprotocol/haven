@@ -1,6 +1,6 @@
 // Copyright (c) 2006-2013, Andrey N. Sabelnikov, www.sabelnikov.net
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
 // * Redistributions of source code must retain the above copyright
@@ -11,7 +11,7 @@
 // * Neither the name of the Andrey N. Sabelnikov nor the
 // names of its contributors may be used to endorse or promote products
 // derived from this software without specific prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 // ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 // WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -22,13 +22,15 @@
 // ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// 
+//
 
 #pragma once
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include "parserse_base_utils.h"
 #include "file_io_utils.h"
+
+#define EPEE_JSON_RECURSION_LIMIT_INTERNAL 100
 
 namespace epee
 {
@@ -44,30 +46,31 @@ namespace epee
         ASSERT_MES_AND_THROW("json parse error");
       }*/
       template<class t_storage>
-      inline void run_handler(typename t_storage::hsection current_section, std::string::const_iterator& sec_buf_begin, std::string::const_iterator buf_end, t_storage& stg)
+      inline void run_handler(typename t_storage::hsection current_section, std::string::const_iterator& sec_buf_begin, std::string::const_iterator buf_end, t_storage& stg, unsigned int recursion)
       {
+        CHECK_AND_ASSERT_THROW_MES(recursion < EPEE_JSON_RECURSION_LIMIT_INTERNAL, "Wrong JSON data: recursion limitation (" << EPEE_JSON_RECURSION_LIMIT_INTERNAL << ") exceeded");
 
         std::string::const_iterator sub_element_start;
-        std::string name;        
+        std::string name;
         typename t_storage::harray h_array = nullptr;
         enum match_state
         {
-          match_state_lookup_for_section_start, 
-          match_state_lookup_for_name, 
-          match_state_waiting_separator, 
-          match_state_wonder_after_separator, 
-          match_state_wonder_after_value, 
-          match_state_wonder_array, 
+          match_state_lookup_for_section_start,
+          match_state_lookup_for_name,
+          match_state_waiting_separator,
+          match_state_wonder_after_separator,
+          match_state_wonder_after_value,
+          match_state_wonder_array,
           match_state_array_after_value,
-          match_state_array_waiting_value, 
+          match_state_array_waiting_value,
           match_state_error
         };
 
         enum array_mode
         {
           array_mode_undifined = 0,
-          array_mode_sections, 
-          array_mode_string, 
+          array_mode_sections,
+          array_mode_string,
           array_mode_numbers,
           array_mode_booleans
         };
@@ -110,8 +113,8 @@ namespace epee
             {//just a named string value started
               std::string val;
               match_string2(it, buf_end, val);
-              //insert text value 
-              stg.set_value(name, val, current_section);              
+              //insert text value
+              stg.set_value(name, val, current_section);
               state = match_state_wonder_after_value;
             }else if (isdigit(*it) || *it == '-')
             {//just a named number value started
@@ -123,16 +126,16 @@ namespace epee
                 if(is_signed)
                 {
                   int64_t nval = boost::lexical_cast<int64_t>(val);
-                  stg.set_value(name, nval, current_section);              
+                  stg.set_value(name, nval, current_section);
                 }else
                 {
                   uint64_t nval = boost::lexical_cast<uint64_t >(val);
-                  stg.set_value(name, nval, current_section);              
+                  stg.set_value(name, nval, current_section);
                 }
               }else
               {
                 double nval = boost::lexical_cast<double>(val);
-                stg.set_value(name, nval, current_section);              
+                stg.set_value(name, nval, current_section);
               }
               state = match_state_wonder_after_value;
             }else if(isalpha(*it) )
@@ -142,14 +145,14 @@ namespace epee
               if(boost::iequals(word, "null"))
               {
                 state = match_state_wonder_after_value;
-                //just skip this, 
+                //just skip this,
               }else if(boost::iequals(word, "true"))
               {
-                stg.set_value(name, true, current_section);              
+                stg.set_value(name, true, current_section);
                 state = match_state_wonder_after_value;
               }else if(boost::iequals(word, "false"))
               {
-                stg.set_value(name, false, current_section);              
+                stg.set_value(name, false, current_section);
                 state = match_state_wonder_after_value;
               }else ASSERT_MES_AND_THROW("Unknown value keyword " << word);
             }else if(*it == '{')
@@ -157,7 +160,7 @@ namespace epee
               //sub section here
               typename t_storage::hsection new_sec = stg.open_section(name, current_section, true);
               CHECK_AND_ASSERT_THROW_MES(new_sec, "Failed to insert new section in json: " << std::string(it, buf_end));
-              run_handler(new_sec, it, buf_end, stg);
+              run_handler(new_sec, it, buf_end, stg, recursion + 1);
               state = match_state_wonder_after_value;
             }else if(*it == '[')
             {//array of something
@@ -177,7 +180,7 @@ namespace epee
           case match_state_wonder_array:
             if(*it == '[')
             {
-              ASSERT_MES_AND_THROW("array of array not suppoerted yet :( sorry"); 
+              ASSERT_MES_AND_THROW("array of array not suppoerted yet :( sorry");
               //mean array of array
             }
             if(*it == '{')
@@ -186,7 +189,7 @@ namespace epee
               typename t_storage::hsection new_sec = nullptr;
               h_array = stg.insert_first_section(name, new_sec, current_section);
               CHECK_AND_ASSERT_THROW_MES(h_array&&new_sec, "failed to create new section");
-              run_handler(new_sec, it, buf_end, stg);
+              run_handler(new_sec, it, buf_end, stg, recursion + 1);
               state = match_state_array_after_value;
               array_md = array_mode_sections;
             }else if(*it == '"')
@@ -227,13 +230,13 @@ namespace epee
               match_word2(it, buf_end, word);
               if(boost::iequals(word, "true"))
               {
-                h_array = stg.insert_first_value(name, true, current_section);              
+                h_array = stg.insert_first_value(name, true, current_section);
                 CHECK_AND_ASSERT_THROW_MES(h_array, " failed to insert values section entry");
                 state = match_state_array_after_value;
                 array_md = array_mode_booleans;
               }else if(boost::iequals(word, "false"))
               {
-                h_array = stg.insert_first_value(name, false, current_section);              
+                h_array = stg.insert_first_value(name, false, current_section);
                 CHECK_AND_ASSERT_THROW_MES(h_array, " failed to insert values section entry");
                 state = match_state_array_after_value;
                 array_md = array_mode_booleans;
@@ -260,7 +263,7 @@ namespace epee
                 typename t_storage::hsection new_sec = NULL;
                 bool res = stg.insert_next_section(h_array, new_sec);
                 CHECK_AND_ASSERT_THROW_MES(res&&new_sec, "failed to insert next section");
-                run_handler(new_sec, it, buf_end, stg);
+                run_handler(new_sec, it, buf_end, stg, recursion + 1);
                 state = match_state_array_after_value;
               }else CHECK_ISSPACE();
               break;
@@ -285,12 +288,12 @@ namespace epee
                 {
                   int64_t nval = boost::lexical_cast<int64_t>(val);  //bool res = string_tools::string_to_num_fast(val, nval);
                   insert_res = stg.insert_next_value(h_array, nval);
-                  
+
                 }else
                 {
                   //TODO: optimize here if need
                   double nval = boost::lexical_cast<double>(val); //string_tools::string_to_num_fast(val, nval);
-                  insert_res = stg.insert_next_value(h_array, nval);              
+                  insert_res = stg.insert_next_value(h_array, nval);
                 }
                 CHECK_AND_ASSERT_THROW_MES(insert_res, "Failed to insert next value");
                 state = match_state_array_after_value;
@@ -304,7 +307,7 @@ namespace epee
                 match_word2(it, buf_end, word);
                 if(boost::iequals(word, "true"))
                 {
-                  bool r = stg.insert_next_value(h_array, true);              
+                  bool r = stg.insert_next_value(h_array, true);
                   CHECK_AND_ASSERT_THROW_MES(r, " failed to insert values section entry");
                   state = match_state_array_after_value;
                 }else if(boost::iequals(word, "false"))
@@ -336,9 +339,9 @@ namespace epee
         "streetAddress": "21 2nd Street",
         "city": "New York",
         "state": "NY",
-        "postalCode": -10021, 
-        "have_boobs": true, 
-        "have_balls": false 
+        "postalCode": -10021,
+        "have_boobs": true,
+        "have_balls": false
     },
     "phoneNumber": [
         {
@@ -349,7 +352,7 @@ namespace epee
             "type": "fax",
             "number": "646 555-4567"
         }
-    ], 
+    ],
     "phoneNumbers": [
     "812 123-1234",
     "916 123-4567"
@@ -362,7 +365,7 @@ namespace epee
         std::string::const_iterator sec_buf_begin  = buff_json.begin();
         try
         {
-          run_handler(nullptr, sec_buf_begin, buff_json.end(), stg);
+          run_handler(nullptr, sec_buf_begin, buff_json.end(), stg, 0);
           return true;
         }
         catch(const std::exception& ex)
