@@ -1,21 +1,21 @@
 // Copyright (c) 2017, The Monero Project
-// 
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this list of
 //    conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright notice, this list
 //    of conditions and the following disclaimer in the documentation and/or other
 //    materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its contributors may be
 //    used to endorse or promote products derived from this software without specific
 //    prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -234,7 +234,7 @@ namespace rpc
 
       res.txs.emplace(found_hashes[i], std::move(info));
     }
-                                      
+
     res.missed_hashes = std::move(missed_vec);
     res.status = Message::STATUS_OK;
   }
@@ -282,44 +282,6 @@ namespace rpc
 
     res.status = Message::STATUS_OK;
 
-  }
-
-  //TODO: handle "restricted" RPC
-  void DaemonHandler::handle(const GetRandomOutputsForAmounts::Request& req, GetRandomOutputsForAmounts::Response& res)
-  {
-    auto& chain = m_core.get_blockchain_storage();
-
-    try
-    {
-      for (const uint64_t& amount : req.amounts)
-      {
-        std::vector<uint64_t> indices = chain.get_random_outputs(amount, req.count);
-
-        outputs_for_amount ofa;
-
-        ofa.resize(indices.size());
-
-        for (size_t i = 0; i < indices.size(); i++)
-        {
-          crypto::public_key key = chain.get_output_key(amount, indices[i]);
-          ofa[i].amount_index = indices[i];
-          ofa[i].key = key;
-        }
-
-        amount_with_random_outputs amt;
-        amt.amount = amount;
-        amt.outputs = ofa;
-
-        res.amounts_with_outputs.push_back(amt);
-      }
-
-      res.status = Message::STATUS_OK;
-    }
-    catch (const std::exception& e)
-    {
-      res.status = Message::STATUS_FAILED;
-      res.error_details = e.what();
-    }
   }
 
   void DaemonHandler::handle(const SendRawTx::Request& req, SendRawTx::Response& res)
@@ -520,7 +482,7 @@ namespace rpc
     const cryptonote::miner& lMiner = m_core.get_miner();
     res.active = lMiner.is_mining();
     res.is_background_mining_enabled = lMiner.get_is_background_mining_enabled();
-    
+
     if ( lMiner.is_mining() ) {
       res.speed = lMiner.get_speed();
       res.threads_count = lMiner.get_threads_count();
@@ -845,7 +807,6 @@ namespace rpc
       REQ_RESP_TYPES_MACRO(request_type, GetTransactions, req_json, resp_message, handle);
       REQ_RESP_TYPES_MACRO(request_type, KeyImagesSpent, req_json, resp_message, handle);
       REQ_RESP_TYPES_MACRO(request_type, GetTxGlobalOutputIndices, req_json, resp_message, handle);
-      REQ_RESP_TYPES_MACRO(request_type, GetRandomOutputsForAmounts, req_json, resp_message, handle);
       REQ_RESP_TYPES_MACRO(request_type, SendRawTx, req_json, resp_message, handle);
       REQ_RESP_TYPES_MACRO(request_type, GetInfo, req_json, resp_message, handle);
       REQ_RESP_TYPES_MACRO(request_type, StartMining, req_json, resp_message, handle);

@@ -1,21 +1,21 @@
 // Copyright (c) 2016-2017, The Monero Project
-// 
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this list of
 //    conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright notice, this list
 //    of conditions and the following disclaimer in the documentation and/or other
 //    materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its contributors may be
 //    used to endorse or promote products derived from this software without specific
 //    prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -41,7 +41,6 @@ const char* const GetHashesFast::name = "get_hashes_fast";
 const char* const GetTransactions::name = "get_transactions";
 const char* const KeyImagesSpent::name = "key_images_spent";
 const char* const GetTxGlobalOutputIndices::name = "get_tx_global_output_indices";
-const char* const GetRandomOutputsForAmounts::name = "get_random_outputs_for_amounts";
 const char* const SendRawTx::name = "send_raw_tx";
 const char* const StartMining::name = "start_mining";
 const char* const StopMining::name = "stop_mining";
@@ -272,42 +271,6 @@ void GetTxGlobalOutputIndices::Response::fromJson(rapidjson::Value& val)
 {
   GET_FROM_JSON_OBJECT(val, output_indices, output_indices);
 }
-
-
-rapidjson::Value GetRandomOutputsForAmounts::Request::toJson(rapidjson::Document& doc) const
-{
-  auto val = Message::toJson(doc);
-
-  auto& al = doc.GetAllocator();
-
-  INSERT_INTO_JSON_OBJECT(val, doc, amounts, amounts);
-  INSERT_INTO_JSON_OBJECT(val, doc, count, count);
-
-  return val;
-}
-
-void GetRandomOutputsForAmounts::Request::fromJson(rapidjson::Value& val)
-{
-  GET_FROM_JSON_OBJECT(val, amounts, amounts);
-  GET_FROM_JSON_OBJECT(val, count, count);
-}
-
-rapidjson::Value GetRandomOutputsForAmounts::Response::toJson(rapidjson::Document& doc) const
-{
-  auto val = Message::toJson(doc);
-
-  auto& al = doc.GetAllocator();
-
-  INSERT_INTO_JSON_OBJECT(val, doc, amounts_with_outputs, amounts_with_outputs);
-
-  return val;
-}
-
-void GetRandomOutputsForAmounts::Response::fromJson(rapidjson::Value& val)
-{
-  GET_FROM_JSON_OBJECT(val, amounts_with_outputs, amounts_with_outputs);
-}
-
 
 rapidjson::Value SendRawTx::Request::toJson(rapidjson::Document& doc) const
 {
