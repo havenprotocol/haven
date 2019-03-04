@@ -93,7 +93,8 @@ static const struct {
   // version 1 from the start of the blockchain
   { 1, 1, 0, 1517398427 },
   { 2, 38500, 0, 1522818000 },  // 4th April 2018
-  { 3, 89200, 0, 1528942500 }   // 14th June 2018
+  { 3, 89200, 0, 1528942500 },  // 14th June 2018
+  { 4, 290080, 0, 1552960800 }  // 19th March 2019
 };
 
 static const struct {
@@ -1107,10 +1108,19 @@ bool Blockchain::validate_miner_transaction(const block& b, size_t cumulative_bl
       }
 
       std::string governance_wallet_address_str;
-      if (m_testnet) {
-        governance_wallet_address_str = ::config::testnet::GOVERNANCE_WALLET_ADDRESS;
+
+      if (version >= 4) {
+        if (m_testnet) {
+          governance_wallet_address_str = ::config::testnet::GOVERNANCE_WALLET_ADDRESS_MULTI;
+	} else {
+          governance_wallet_address_str = ::config::GOVERNANCE_WALLET_ADDRESS_MULTI;
+	}
       } else {
-        governance_wallet_address_str = ::config::GOVERNANCE_WALLET_ADDRESS;
+        if (m_testnet) {
+          governance_wallet_address_str = ::config::testnet::GOVERNANCE_WALLET_ADDRESS;
+        } else {
+          governance_wallet_address_str = ::config::GOVERNANCE_WALLET_ADDRESS;
+        }
       }
 
       if (!validate_governance_reward_key(m_db->height(), governance_wallet_address_str, b.miner_tx.vout.size() - 1, boost::get<txout_to_key>(b.miner_tx.vout.back().target).key, m_testnet))
