@@ -2471,11 +2471,11 @@ bool Blockchain::check_tx_outputs(const transaction& tx, tx_verification_context
   }
 
 
-  // from v4, allow bulletproofs
-  if (hf_version < 4) {
+  // from v5, allow bulletproofs
+  if (hf_version < 5) {
     if (!tx.rct_signatures.p.bulletproofs.empty())
     {
-      MERROR("Bulletproofs are not allowed before v4");
+      MERROR("Bulletproofs are not allowed before v5");
       tvc.m_invalid_output = true;
       return false;
     }
