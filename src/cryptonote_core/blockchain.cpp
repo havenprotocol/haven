@@ -93,7 +93,8 @@ static const struct {
   // version 1 from the start of the blockchain
   { 1, 1, 0, 1517398427 },
   { 2, 38500, 0, 1522818000 },  // 4th April 2018
-  { 3, 89200, 0, 1528942500 }   // 14th June 2018
+  { 3, 89200, 0, 1528942500 },  // 14th June 2018
+  { 4, 283000, 0, 1552960800 }  // 19th March 2019
 };
 
 static const struct {
@@ -1054,6 +1055,7 @@ bool Blockchain::prevalidate_miner_transaction(const block& b, uint64_t height)
   LOG_PRINT_L3("Blockchain::" << __func__);
   CHECK_AND_ASSERT_MES(b.miner_tx.vin.size() == 1, false, "coinbase transaction in the block has no inputs");
   CHECK_AND_ASSERT_MES(b.miner_tx.vin[0].type() == typeid(txin_gen), false, "coinbase transaction in the block has the wrong type");
+  CHECK_AND_ASSERT_MES(b.miner_tx.rct_signatures.type == rct::RCTTypeNull, false, "V1 miner transactions are not allowed.");
   if(boost::get<txin_gen>(b.miner_tx.vin[0]).height != height)
   {
     MWARNING("The miner transaction in block has invalid height: " << boost::get<txin_gen>(b.miner_tx.vin[0]).height << ", expected: " << height);
@@ -1106,10 +1108,19 @@ bool Blockchain::validate_miner_transaction(const block& b, size_t cumulative_bl
       }
 
       std::string governance_wallet_address_str;
-      if (m_testnet) {
-        governance_wallet_address_str = ::config::testnet::GOVERNANCE_WALLET_ADDRESS;
+
+      if (version >= 4) {
+        if (m_testnet) {
+          governance_wallet_address_str = ::config::testnet::GOVERNANCE_WALLET_ADDRESS_MULTI;
+	} else {
+          governance_wallet_address_str = ::config::GOVERNANCE_WALLET_ADDRESS_MULTI;
+	}
       } else {
-        governance_wallet_address_str = ::config::GOVERNANCE_WALLET_ADDRESS;
+        if (m_testnet) {
+          governance_wallet_address_str = ::config::testnet::GOVERNANCE_WALLET_ADDRESS;
+        } else {
+          governance_wallet_address_str = ::config::GOVERNANCE_WALLET_ADDRESS;
+        }
       }
 
       if (!validate_governance_reward_key(m_db->height(), governance_wallet_address_str, b.miner_tx.vout.size() - 1, boost::get<txout_to_key>(b.miner_tx.vout.back().target).key, m_testnet))
@@ -2216,11 +2227,11 @@ bool Blockchain::check_tx_outputs(const transaction& tx, tx_verification_context
   }
 
 
-  // from v4, allow bulletproofs
-  if (hf_version < 4) {
+  // from v5, allow bulletproofs
+  if (hf_version < 5) {
     if (!tx.rct_signatures.p.bulletproofs.empty())
     {
-      MERROR("Bulletproofs are not allowed before v4");
+      MERROR("Bulletproofs are not allowed before v5");
       tvc.m_invalid_output = true;
       return false;
     }
